@@ -1,0 +1,82 @@
+[
+  {
+    "portfolio_id": "PORT-INV-000001-01",
+    "investor_id": "INV-000001",
+    "portfolio_name": "Dakota Meridian Balanced Strategic 1",
+    "base_currency": "USD",
+    "status": "INACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  },
+  {
+    "portfolio_id": "PORT-INV-000001-02",
+    "investor_id": "INV-000001",
+    "portfolio_name": "Dakota Meridian Balanced Strategic 2",
+    "base_currency": "USD",
+    "status": "ACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  },
+  {
+    "portfolio_id": "PORT-INV-000002-01",
+    "investor_id": "INV-000002",
+    "portfolio_name": "Avery Valence Conservative Liquidity 1",
+    "base_currency": "USD",
+    "status": "ACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  },
+  {
+    "portfolio_id": "PORT-INV-000002-02",
+    "investor_id": "INV-000002",
+    "portfolio_name": "Avery Valence Capital Preservation 2",
+    "base_currency": "USD",
+    "status": "ACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  },
+  {
+    "portfolio_id": "PORT-INV-000003-01",
+    "investor_id": "INV-000003",
+    "portfolio_name": "Logan Apex Growth & Income 1",
+    "base_currency": "USD",
+    "status": "ACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  },
+  {
+    "portfolio_id": "PORT-INV-000003-02",
+    "investor_id": "INV-000003",
+    "portfolio_name": "Logan Apex Core Multi-Asset 2",
+    "base_currency": "USD",
+    "status": "ACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  },
+  {
+    "portfolio_id": "PORT-INV-000004-01",
+    "investor_id": "INV-000004",
+    "portfolio_name": "Dakota Summit Dynamic Asset Allocation 1",
+    "base_currency": "USD",
+    "status": "ACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  },
+  {
+    "portfolio_id": "PORT-INV-000004-02",
+    "investor_id": "INV-000004",
+    "portfolio_name": "Dakota Summit Capital Preservation 2",
+    "base_currency": "USD",
+    "status": "ACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  },
+  {
+    "portfolio_id": "PORT-INV-000005-01",
+    "investor_id": "INV-000005",
+    "portfolio_name": "Avery Solomon Capital Preservation 1",
+    "base_currency": "USD",
+    "status": "ACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  },
+  {
+    "portfolio_id": "PORT-INV-000005-02",
+    "investor_id": "INV-000005",
+    "portfolio_name": "Avery Solomon Capital Preservation 2",
+    "base_currency": "USD",
+    "status": "ACTIVE",
+    "created_at": "2025-01-01T10:00:00+00:00"
+  }
+]

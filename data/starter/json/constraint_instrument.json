@@ -1,0 +1,14 @@
+[
+  {
+    "constraint_id": "CST-000026",
+    "instrument_id": "INS-000017"
+  },
+  {
+    "constraint_id": "CST-000027",
+    "instrument_id": "INS-000003"
+  },
+  {
+    "constraint_id": "CST-000028",
+    "instrument_id": "INS-000001"
+  }
+]

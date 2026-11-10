@@ -1,0 +1,37 @@
+[
+  {
+    "record_id": "1",
+    "entity_type": "target_allocation",
+    "issue_type": "ALLOCATION_SUM_MISMATCH",
+    "expected_decision": "REJECT",
+    "explanation": "Target allocations for portfolio PORT-INV-000001-01 sum to 105.0000% instead of 100.0000%"
+  },
+  {
+    "record_id": "TRD-000001",
+    "entity_type": "trade",
+    "issue_type": "EXCESS_SELL_QUANTITY",
+    "expected_decision": "REJECT",
+    "explanation": "Trade TRD-000001 proposes to sell 520.0000 units but portfolio only holds 20.0000 units"
+  },
+  {
+    "record_id": "TRD-000002",
+    "entity_type": "trade",
+    "issue_type": "EXCLUDED_INSTRUMENT_RECOMMENDED",
+    "expected_decision": "REJECT",
+    "explanation": "Trade TRD-000002 recommends purchasing restricted instrument INS-000017"
+  },
+  {
+    "record_id": "TRD-000020",
+    "entity_type": "trade",
+    "issue_type": "MISSING_FEE",
+    "expected_decision": "REJECT",
+    "explanation": "Trade TRD-000020 omitted mandatory transaction fees for non-zero notional 36396.2880"
+  },
+  {
+    "record_id": "TRD-000011",
+    "entity_type": "trade",
+    "issue_type": "STALE_PRICE_USAGE",
+    "expected_decision": "REJECT",
+    "explanation": "Trade TRD-000011 was valued using stale unit price 152.2964 instead of current market price"
+  }
+]

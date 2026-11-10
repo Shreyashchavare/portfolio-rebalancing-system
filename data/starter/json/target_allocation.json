@@ -1,0 +1,322 @@
+[
+  {
+    "id": 1,
+    "portfolio_id": "PORT-INV-000001-01",
+    "asset_class": "EQUITY",
+    "target_weight": "55.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 2,
+    "portfolio_id": "PORT-INV-000001-01",
+    "asset_class": "DEBT",
+    "target_weight": "30.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 3,
+    "portfolio_id": "PORT-INV-000001-01",
+    "asset_class": "ETF",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 4,
+    "portfolio_id": "PORT-INV-000001-01",
+    "asset_class": "CASH",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 5,
+    "portfolio_id": "PORT-INV-000001-02",
+    "asset_class": "EQUITY",
+    "target_weight": "50.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 6,
+    "portfolio_id": "PORT-INV-000001-02",
+    "asset_class": "DEBT",
+    "target_weight": "30.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 7,
+    "portfolio_id": "PORT-INV-000001-02",
+    "asset_class": "ETF",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 8,
+    "portfolio_id": "PORT-INV-000001-02",
+    "asset_class": "CASH",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 9,
+    "portfolio_id": "PORT-INV-000002-01",
+    "asset_class": "EQUITY",
+    "target_weight": "20.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 10,
+    "portfolio_id": "PORT-INV-000002-01",
+    "asset_class": "DEBT",
+    "target_weight": "50.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 11,
+    "portfolio_id": "PORT-INV-000002-01",
+    "asset_class": "GOLD",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 12,
+    "portfolio_id": "PORT-INV-000002-01",
+    "asset_class": "CASH",
+    "target_weight": "20.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 13,
+    "portfolio_id": "PORT-INV-000002-02",
+    "asset_class": "EQUITY",
+    "target_weight": "20.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 14,
+    "portfolio_id": "PORT-INV-000002-02",
+    "asset_class": "DEBT",
+    "target_weight": "50.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 15,
+    "portfolio_id": "PORT-INV-000002-02",
+    "asset_class": "GOLD",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 16,
+    "portfolio_id": "PORT-INV-000002-02",
+    "asset_class": "CASH",
+    "target_weight": "20.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 17,
+    "portfolio_id": "PORT-INV-000003-01",
+    "asset_class": "EQUITY",
+    "target_weight": "70.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 18,
+    "portfolio_id": "PORT-INV-000003-01",
+    "asset_class": "DEBT",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 19,
+    "portfolio_id": "PORT-INV-000003-01",
+    "asset_class": "ETF",
+    "target_weight": "15.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 20,
+    "portfolio_id": "PORT-INV-000003-01",
+    "asset_class": "CASH",
+    "target_weight": "5.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 21,
+    "portfolio_id": "PORT-INV-000003-02",
+    "asset_class": "EQUITY",
+    "target_weight": "70.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 22,
+    "portfolio_id": "PORT-INV-000003-02",
+    "asset_class": "DEBT",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 23,
+    "portfolio_id": "PORT-INV-000003-02",
+    "asset_class": "ETF",
+    "target_weight": "15.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 24,
+    "portfolio_id": "PORT-INV-000003-02",
+    "asset_class": "CASH",
+    "target_weight": "5.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 25,
+    "portfolio_id": "PORT-INV-000004-01",
+    "asset_class": "EQUITY",
+    "target_weight": "20.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 26,
+    "portfolio_id": "PORT-INV-000004-01",
+    "asset_class": "DEBT",
+    "target_weight": "50.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 27,
+    "portfolio_id": "PORT-INV-000004-01",
+    "asset_class": "GOLD",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 28,
+    "portfolio_id": "PORT-INV-000004-01",
+    "asset_class": "CASH",
+    "target_weight": "20.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 29,
+    "portfolio_id": "PORT-INV-000004-02",
+    "asset_class": "EQUITY",
+    "target_weight": "20.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 30,
+    "portfolio_id": "PORT-INV-000004-02",
+    "asset_class": "DEBT",
+    "target_weight": "50.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 31,
+    "portfolio_id": "PORT-INV-000004-02",
+    "asset_class": "GOLD",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 32,
+    "portfolio_id": "PORT-INV-000004-02",
+    "asset_class": "CASH",
+    "target_weight": "20.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 33,
+    "portfolio_id": "PORT-INV-000005-01",
+    "asset_class": "EQUITY",
+    "target_weight": "70.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 34,
+    "portfolio_id": "PORT-INV-000005-01",
+    "asset_class": "DEBT",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 35,
+    "portfolio_id": "PORT-INV-000005-01",
+    "asset_class": "ETF",
+    "target_weight": "15.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 36,
+    "portfolio_id": "PORT-INV-000005-01",
+    "asset_class": "CASH",
+    "target_weight": "5.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 37,
+    "portfolio_id": "PORT-INV-000005-02",
+    "asset_class": "EQUITY",
+    "target_weight": "70.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 38,
+    "portfolio_id": "PORT-INV-000005-02",
+    "asset_class": "DEBT",
+    "target_weight": "10.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 39,
+    "portfolio_id": "PORT-INV-000005-02",
+    "asset_class": "ETF",
+    "target_weight": "15.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  },
+  {
+    "id": 40,
+    "portfolio_id": "PORT-INV-000005-02",
+    "asset_class": "CASH",
+    "target_weight": "5.0000",
+    "effective_from": "2026-01-01",
+    "effective_to": null
+  }
+]

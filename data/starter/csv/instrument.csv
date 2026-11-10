@@ -1,0 +1,21 @@
+instrument_id,symbol,instrument_name,asset_class,lot_size,is_active
+INS-000001,EQ-US-LC,US Large Cap Equity Index,EQUITY,1.0000,True
+INS-000002,EQ-US-TECH,US Technology Growth Equities,EQUITY,1.0000,True
+INS-000003,EQ-EM-VAL,Emerging Markets Value Equities,EQUITY,1.0000,True
+INS-000004,EQ-GL-DIV,Global High Dividend Equity,EQUITY,1.0000,True
+INS-000005,EQ-EU-CORE,European Core Blend Equities,EQUITY,1.0000,True
+INS-000006,DB-US-UST,US Treasury 7-10Y Benchmark,DEBT,10.0000,True
+INS-000007,DB-US-IG,Investment Grade Corporate Bond,DEBT,10.0000,True
+INS-000008,DB-GL-SOV,Global Sovereign Aggregate Debt,DEBT,10.0000,True
+INS-000009,DB-US-ST,Short-Term Treasury Bills,DEBT,10.0000,True
+INS-000010,DB-EM-LOC,Emerging Local Currency Debt,DEBT,10.0000,True
+INS-000011,ETF-WLD-500,Global 500 Market Index ETF,ETF,1.0000,True
+INS-000012,ETF-ESG-GL,Global Sustainable Leader ETF,ETF,1.0000,True
+INS-000013,ETF-SEMI,Semiconductor Innovation ETF,ETF,1.0000,True
+INS-000014,ETF-REIT,Global Real Estate Income ETF,ETF,1.0000,True
+INS-000015,ETF-INFRA,Global Infrastructure ETF,ETF,1.0000,True
+INS-000016,GLD-PHYS,Physical Gold Bullion Trust,GOLD,1.0000,True
+INS-000017,GLD-BARS,Allocated Sovereign Gold ETC,GOLD,1.0000,True
+INS-000018,CSH-USD-MM,USD Treasury Money Market Fund,CASH,1.0000,True
+INS-000019,CSH-OVR-NT,Overnight Government Repo Cash,CASH,1.0000,True
+INS-000020,CSH-EUR-MM,EUR Liquidity Prime Reserve,CASH,1.0000,True

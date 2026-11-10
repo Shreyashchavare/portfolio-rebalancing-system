@@ -56,3 +56,32 @@ def generate_proposal_id(index: int, year: int = 2026) -> str:
         raise ValueError(f"year must be a valid four-digit integer, got {year}")
     return f"RB-{year}-{index:06d}"
 
+
+def generate_trade_id(index: int) -> str:
+    """Generate a deterministic trade identifier.
+
+    Format: TRD-000001
+    """
+    if not isinstance(index, int) or index < 1:
+        raise ValueError(f"index must be an integer >= 1, got {index}")
+    return f"TRD-{index:06d}"
+
+
+def generate_constraint_id(index: int) -> str:
+    """Generate a deterministic constraint identifier.
+
+    Format: CST-000001
+    """
+    if not isinstance(index, int) or index < 1:
+        raise ValueError(f"index must be an integer >= 1, got {index}")
+    return f"CST-{index:06d}"
+
+
+def generate_fee_schedule_id(asset_class: str, trade_side: str, tier: int) -> str:
+    """Generate a deterministic fee schedule identifier.
+
+    Format: FEE-<AC>-<SIDE>-01
+    """
+    ac_code = asset_class[:3].upper()
+    side_code = trade_side[:1].upper()
+    return f"FEE-{ac_code}-{side_code}-{tier:02d}"

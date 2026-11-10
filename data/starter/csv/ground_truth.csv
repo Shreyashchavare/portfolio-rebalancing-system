@@ -1,0 +1,6 @@
+record_id,entity_type,issue_type,expected_decision,explanation
+1,target_allocation,ALLOCATION_SUM_MISMATCH,REJECT,Target allocations for portfolio PORT-INV-000001-01 sum to 105.0000% instead of 100.0000%
+TRD-000001,trade,EXCESS_SELL_QUANTITY,REJECT,Trade TRD-000001 proposes to sell 520.0000 units but portfolio only holds 20.0000 units
+TRD-000002,trade,EXCLUDED_INSTRUMENT_RECOMMENDED,REJECT,Trade TRD-000002 recommends purchasing restricted instrument INS-000017
+TRD-000020,trade,MISSING_FEE,REJECT,Trade TRD-000020 omitted mandatory transaction fees for non-zero notional 36396.2880
+TRD-000011,trade,STALE_PRICE_USAGE,REJECT,Trade TRD-000011 was valued using stale unit price 152.2964 instead of current market price

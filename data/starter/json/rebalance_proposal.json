@@ -1,0 +1,112 @@
+[
+  {
+    "proposal_id": "RB-2026-000001",
+    "portfolio_id": "PORT-INV-000001-01",
+    "status": "APPROVED",
+    "review_decision": "APPROVED",
+    "pre_trade_portfolio_value": "50436.0000",
+    "post_trade_portfolio_value": "50455.0000",
+    "created_at": "2026-01-15T11:00:00+00:00",
+    "reviewed_at": "2026-01-15T22:00:00+00:00",
+    "review_reason": "Rebalance strategy aligned with policy and risk category targets."
+  },
+  {
+    "proposal_id": "RB-2026-000002",
+    "portfolio_id": "PORT-INV-000001-02",
+    "status": "APPROVED",
+    "review_decision": "APPROVED",
+    "pre_trade_portfolio_value": "215457.0000",
+    "post_trade_portfolio_value": "215421.0000",
+    "created_at": "2026-01-15T16:00:00+00:00",
+    "reviewed_at": "2026-01-15T23:00:00+00:00",
+    "review_reason": "Rebalance strategy aligned with policy and risk category targets."
+  },
+  {
+    "proposal_id": "RB-2026-000003",
+    "portfolio_id": "PORT-INV-000002-01",
+    "status": "APPROVED",
+    "review_decision": "APPROVED",
+    "pre_trade_portfolio_value": "199183.0000",
+    "post_trade_portfolio_value": "199199.0000",
+    "created_at": "2026-01-15T12:00:00+00:00",
+    "reviewed_at": "2026-01-15T14:00:00+00:00",
+    "review_reason": "Routine quarter-end drift correction approved."
+  },
+  {
+    "proposal_id": "RB-2026-000004",
+    "portfolio_id": "PORT-INV-000002-02",
+    "status": "PENDING_REVIEW",
+    "review_decision": "PENDING",
+    "pre_trade_portfolio_value": "81341.0000",
+    "post_trade_portfolio_value": "81336.0000",
+    "created_at": "2026-01-15T11:00:00+00:00",
+    "reviewed_at": null,
+    "review_reason": null
+  },
+  {
+    "proposal_id": "RB-2026-000005",
+    "portfolio_id": "PORT-INV-000003-01",
+    "status": "APPROVED",
+    "review_decision": "APPROVED",
+    "pre_trade_portfolio_value": "196279.0000",
+    "post_trade_portfolio_value": "196235.0000",
+    "created_at": "2026-01-15T15:00:00+00:00",
+    "reviewed_at": "2026-01-16T10:00:00+00:00",
+    "review_reason": "Routine quarter-end drift correction approved."
+  },
+  {
+    "proposal_id": "RB-2026-000006",
+    "portfolio_id": "PORT-INV-000003-02",
+    "status": "APPROVED",
+    "review_decision": "APPROVED",
+    "pre_trade_portfolio_value": "198428.0000",
+    "post_trade_portfolio_value": "198444.0000",
+    "created_at": "2026-01-15T12:00:00+00:00",
+    "reviewed_at": "2026-01-16T11:00:00+00:00",
+    "review_reason": "Routine quarter-end drift correction approved."
+  },
+  {
+    "proposal_id": "RB-2026-000007",
+    "portfolio_id": "PORT-INV-000004-01",
+    "status": "REJECTED",
+    "review_decision": "REJECTED",
+    "pre_trade_portfolio_value": "237134.0000",
+    "post_trade_portfolio_value": "237123.0000",
+    "created_at": "2026-01-15T15:00:00+00:00",
+    "reviewed_at": "2026-01-16T06:00:00+00:00",
+    "review_reason": "Rebalance rejected due to proposed trade size exceeding turnover limits."
+  },
+  {
+    "proposal_id": "RB-2026-000008",
+    "portfolio_id": "PORT-INV-000004-02",
+    "status": "APPROVED",
+    "review_decision": "APPROVED",
+    "pre_trade_portfolio_value": "68091.0000",
+    "post_trade_portfolio_value": "68116.0000",
+    "created_at": "2026-01-15T17:00:00+00:00",
+    "reviewed_at": "2026-01-15T21:00:00+00:00",
+    "review_reason": "Routine quarter-end drift correction approved."
+  },
+  {
+    "proposal_id": "RB-2026-000009",
+    "portfolio_id": "PORT-INV-000005-01",
+    "status": "APPROVED",
+    "review_decision": "APPROVED",
+    "pre_trade_portfolio_value": "137550.0000",
+    "post_trade_portfolio_value": "137586.0000",
+    "created_at": "2026-01-15T17:00:00+00:00",
+    "reviewed_at": "2026-01-15T19:00:00+00:00",
+    "review_reason": "Rebalance strategy aligned with policy and risk category targets."
+  },
+  {
+    "proposal_id": "RB-2026-000010",
+    "portfolio_id": "PORT-INV-000005-02",
+    "status": "APPROVED",
+    "review_decision": "APPROVED",
+    "pre_trade_portfolio_value": "170262.0000",
+    "post_trade_portfolio_value": "170292.0000",
+    "created_at": "2026-01-15T16:00:00+00:00",
+    "reviewed_at": "2026-01-16T10:00:00+00:00",
+    "review_reason": "Rebalance strategy aligned with policy and risk category targets."
+  }
+]

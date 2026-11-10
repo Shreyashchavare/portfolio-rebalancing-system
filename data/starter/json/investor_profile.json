@@ -1,0 +1,32 @@
+[
+  {
+    "investor_id": "INV-000001",
+    "name": "Dakota Meridian",
+    "risk_category": "MODERATE",
+    "created_at": "2025-01-01T09:00:00+00:00"
+  },
+  {
+    "investor_id": "INV-000002",
+    "name": "Avery Valence",
+    "risk_category": "LOW",
+    "created_at": "2025-01-01T09:00:00+00:00"
+  },
+  {
+    "investor_id": "INV-000003",
+    "name": "Logan Apex",
+    "risk_category": "HIGH",
+    "created_at": "2025-01-01T09:00:00+00:00"
+  },
+  {
+    "investor_id": "INV-000004",
+    "name": "Dakota Summit",
+    "risk_category": "LOW",
+    "created_at": "2025-01-01T09:00:00+00:00"
+  },
+  {
+    "investor_id": "INV-000005",
+    "name": "Avery Solomon",
+    "risk_category": "HIGH",
+    "created_at": "2025-01-01T09:00:00+00:00"
+  }
+]

@@ -1,0 +1,373 @@
+[
+  {
+    "holding_id": "HOLD-PORT-INV-000001-01-INS-000018",
+    "portfolio_id": "PORT-INV-000001-01",
+    "instrument_id": "INS-000018",
+    "quantity": "11400.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-01-INS-000010",
+    "portfolio_id": "PORT-INV-000001-01",
+    "instrument_id": "INS-000010",
+    "quantity": "20.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-01-INS-000003",
+    "portfolio_id": "PORT-INV-000001-01",
+    "instrument_id": "INS-000003",
+    "quantity": "149.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-01-INS-000013",
+    "portfolio_id": "PORT-INV-000001-01",
+    "instrument_id": "INS-000013",
+    "quantity": "134.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-01-INS-000001",
+    "portfolio_id": "PORT-INV-000001-01",
+    "instrument_id": "INS-000001",
+    "quantity": "92.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-01-INS-000005",
+    "portfolio_id": "PORT-INV-000001-01",
+    "instrument_id": "INS-000005",
+    "quantity": "16.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-02-INS-000018",
+    "portfolio_id": "PORT-INV-000001-02",
+    "instrument_id": "INS-000018",
+    "quantity": "25200.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-02-INS-000008",
+    "portfolio_id": "PORT-INV-000001-02",
+    "instrument_id": "INS-000008",
+    "quantity": "1980.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-02-INS-000006",
+    "portfolio_id": "PORT-INV-000001-02",
+    "instrument_id": "INS-000006",
+    "quantity": "1400.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-02-INS-000015",
+    "portfolio_id": "PORT-INV-000001-02",
+    "instrument_id": "INS-000015",
+    "quantity": "125.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-02-INS-000002",
+    "portfolio_id": "PORT-INV-000001-02",
+    "instrument_id": "INS-000002",
+    "quantity": "187.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000001-02-INS-000011",
+    "portfolio_id": "PORT-INV-000001-02",
+    "instrument_id": "INS-000011",
+    "quantity": "78.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-01-INS-000018",
+    "portfolio_id": "PORT-INV-000002-01",
+    "instrument_id": "INS-000018",
+    "quantity": "46800.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-01-INS-000013",
+    "portfolio_id": "PORT-INV-000002-01",
+    "instrument_id": "INS-000013",
+    "quantity": "88.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-01-INS-000002",
+    "portfolio_id": "PORT-INV-000002-01",
+    "instrument_id": "INS-000002",
+    "quantity": "173.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-01-INS-000003",
+    "portfolio_id": "PORT-INV-000002-01",
+    "instrument_id": "INS-000003",
+    "quantity": "26.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-02-INS-000020",
+    "portfolio_id": "PORT-INV-000002-02",
+    "instrument_id": "INS-000020",
+    "quantity": "38600.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-02-INS-000010",
+    "portfolio_id": "PORT-INV-000002-02",
+    "instrument_id": "INS-000010",
+    "quantity": "1340.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-02-INS-000011",
+    "portfolio_id": "PORT-INV-000002-02",
+    "instrument_id": "INS-000011",
+    "quantity": "76.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-02-INS-000004",
+    "portfolio_id": "PORT-INV-000002-02",
+    "instrument_id": "INS-000004",
+    "quantity": "6.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-02-INS-000005",
+    "portfolio_id": "PORT-INV-000002-02",
+    "instrument_id": "INS-000005",
+    "quantity": "159.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-02-INS-000017",
+    "portfolio_id": "PORT-INV-000002-02",
+    "instrument_id": "INS-000017",
+    "quantity": "17.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000002-02-INS-000006",
+    "portfolio_id": "PORT-INV-000002-02",
+    "instrument_id": "INS-000006",
+    "quantity": "790.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-01-INS-000019",
+    "portfolio_id": "PORT-INV-000003-01",
+    "instrument_id": "INS-000019",
+    "quantity": "46900.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-01-INS-000010",
+    "portfolio_id": "PORT-INV-000003-01",
+    "instrument_id": "INS-000010",
+    "quantity": "50.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-01-INS-000005",
+    "portfolio_id": "PORT-INV-000003-01",
+    "instrument_id": "INS-000005",
+    "quantity": "2.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-01-INS-000012",
+    "portfolio_id": "PORT-INV-000003-01",
+    "instrument_id": "INS-000012",
+    "quantity": "12.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-02-INS-000018",
+    "portfolio_id": "PORT-INV-000003-02",
+    "instrument_id": "INS-000018",
+    "quantity": "14600.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-02-INS-000008",
+    "portfolio_id": "PORT-INV-000003-02",
+    "instrument_id": "INS-000008",
+    "quantity": "550.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-02-INS-000017",
+    "portfolio_id": "PORT-INV-000003-02",
+    "instrument_id": "INS-000017",
+    "quantity": "111.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-02-INS-000016",
+    "portfolio_id": "PORT-INV-000003-02",
+    "instrument_id": "INS-000016",
+    "quantity": "44.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-02-INS-000009",
+    "portfolio_id": "PORT-INV-000003-02",
+    "instrument_id": "INS-000009",
+    "quantity": "990.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000003-02-INS-000004",
+    "portfolio_id": "PORT-INV-000003-02",
+    "instrument_id": "INS-000004",
+    "quantity": "44.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000004-01-INS-000018",
+    "portfolio_id": "PORT-INV-000004-01",
+    "instrument_id": "INS-000018",
+    "quantity": "10300.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000004-01-INS-000007",
+    "portfolio_id": "PORT-INV-000004-01",
+    "instrument_id": "INS-000007",
+    "quantity": "120.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000004-01-INS-000008",
+    "portfolio_id": "PORT-INV-000004-01",
+    "instrument_id": "INS-000008",
+    "quantity": "490.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000004-01-INS-000004",
+    "portfolio_id": "PORT-INV-000004-01",
+    "instrument_id": "INS-000004",
+    "quantity": "90.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000004-02-INS-000018",
+    "portfolio_id": "PORT-INV-000004-02",
+    "instrument_id": "INS-000018",
+    "quantity": "34200.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000004-02-INS-000011",
+    "portfolio_id": "PORT-INV-000004-02",
+    "instrument_id": "INS-000011",
+    "quantity": "51.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000004-02-INS-000002",
+    "portfolio_id": "PORT-INV-000004-02",
+    "instrument_id": "INS-000002",
+    "quantity": "33.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000004-02-INS-000003",
+    "portfolio_id": "PORT-INV-000004-02",
+    "instrument_id": "INS-000003",
+    "quantity": "9.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-01-INS-000020",
+    "portfolio_id": "PORT-INV-000005-01",
+    "instrument_id": "INS-000020",
+    "quantity": "13600.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-01-INS-000004",
+    "portfolio_id": "PORT-INV-000005-01",
+    "instrument_id": "INS-000004",
+    "quantity": "184.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-01-INS-000003",
+    "portfolio_id": "PORT-INV-000005-01",
+    "instrument_id": "INS-000003",
+    "quantity": "61.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-01-INS-000015",
+    "portfolio_id": "PORT-INV-000005-01",
+    "instrument_id": "INS-000015",
+    "quantity": "4.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-01-INS-000016",
+    "portfolio_id": "PORT-INV-000005-01",
+    "instrument_id": "INS-000016",
+    "quantity": "177.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-02-INS-000020",
+    "portfolio_id": "PORT-INV-000005-02",
+    "instrument_id": "INS-000020",
+    "quantity": "5900.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-02-INS-000012",
+    "portfolio_id": "PORT-INV-000005-02",
+    "instrument_id": "INS-000012",
+    "quantity": "127.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-02-INS-000002",
+    "portfolio_id": "PORT-INV-000005-02",
+    "instrument_id": "INS-000002",
+    "quantity": "144.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-02-INS-000004",
+    "portfolio_id": "PORT-INV-000005-02",
+    "instrument_id": "INS-000004",
+    "quantity": "73.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-02-INS-000009",
+    "portfolio_id": "PORT-INV-000005-02",
+    "instrument_id": "INS-000009",
+    "quantity": "310.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-02-INS-000008",
+    "portfolio_id": "PORT-INV-000005-02",
+    "instrument_id": "INS-000008",
+    "quantity": "1100.0000",
+    "as_of_date": "2026-01-15"
+  },
+  {
+    "holding_id": "HOLD-PORT-INV-000005-02-INS-000016",
+    "portfolio_id": "PORT-INV-000005-02",
+    "instrument_id": "INS-000016",
+    "quantity": "90.0000",
+    "as_of_date": "2026-01-15"
+  }
+]

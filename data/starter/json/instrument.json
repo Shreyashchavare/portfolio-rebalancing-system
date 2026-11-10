@@ -1,0 +1,162 @@
+[
+  {
+    "instrument_id": "INS-000001",
+    "symbol": "EQ-US-LC",
+    "instrument_name": "US Large Cap Equity Index",
+    "asset_class": "EQUITY",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000002",
+    "symbol": "EQ-US-TECH",
+    "instrument_name": "US Technology Growth Equities",
+    "asset_class": "EQUITY",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000003",
+    "symbol": "EQ-EM-VAL",
+    "instrument_name": "Emerging Markets Value Equities",
+    "asset_class": "EQUITY",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000004",
+    "symbol": "EQ-GL-DIV",
+    "instrument_name": "Global High Dividend Equity",
+    "asset_class": "EQUITY",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000005",
+    "symbol": "EQ-EU-CORE",
+    "instrument_name": "European Core Blend Equities",
+    "asset_class": "EQUITY",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000006",
+    "symbol": "DB-US-UST",
+    "instrument_name": "US Treasury 7-10Y Benchmark",
+    "asset_class": "DEBT",
+    "lot_size": "10.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000007",
+    "symbol": "DB-US-IG",
+    "instrument_name": "Investment Grade Corporate Bond",
+    "asset_class": "DEBT",
+    "lot_size": "10.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000008",
+    "symbol": "DB-GL-SOV",
+    "instrument_name": "Global Sovereign Aggregate Debt",
+    "asset_class": "DEBT",
+    "lot_size": "10.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000009",
+    "symbol": "DB-US-ST",
+    "instrument_name": "Short-Term Treasury Bills",
+    "asset_class": "DEBT",
+    "lot_size": "10.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000010",
+    "symbol": "DB-EM-LOC",
+    "instrument_name": "Emerging Local Currency Debt",
+    "asset_class": "DEBT",
+    "lot_size": "10.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000011",
+    "symbol": "ETF-WLD-500",
+    "instrument_name": "Global 500 Market Index ETF",
+    "asset_class": "ETF",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000012",
+    "symbol": "ETF-ESG-GL",
+    "instrument_name": "Global Sustainable Leader ETF",
+    "asset_class": "ETF",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000013",
+    "symbol": "ETF-SEMI",
+    "instrument_name": "Semiconductor Innovation ETF",
+    "asset_class": "ETF",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000014",
+    "symbol": "ETF-REIT",
+    "instrument_name": "Global Real Estate Income ETF",
+    "asset_class": "ETF",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000015",
+    "symbol": "ETF-INFRA",
+    "instrument_name": "Global Infrastructure ETF",
+    "asset_class": "ETF",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000016",
+    "symbol": "GLD-PHYS",
+    "instrument_name": "Physical Gold Bullion Trust",
+    "asset_class": "GOLD",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000017",
+    "symbol": "GLD-BARS",
+    "instrument_name": "Allocated Sovereign Gold ETC",
+    "asset_class": "GOLD",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000018",
+    "symbol": "CSH-USD-MM",
+    "instrument_name": "USD Treasury Money Market Fund",
+    "asset_class": "CASH",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000019",
+    "symbol": "CSH-OVR-NT",
+    "instrument_name": "Overnight Government Repo Cash",
+    "asset_class": "CASH",
+    "lot_size": "1.0000",
+    "is_active": true
+  },
+  {
+    "instrument_id": "INS-000020",
+    "symbol": "CSH-EUR-MM",
+    "instrument_name": "EUR Liquidity Prime Reserve",
+    "asset_class": "CASH",
+    "lot_size": "1.0000",
+    "is_active": true
+  }
+]
