@@ -1,6 +1,14 @@
 """Database models package."""
 
 from app.models.base import Base
+from app.models.constraint import (
+    Constraint,
+    ConstraintSeverity,
+    ConstraintType,
+    ScopeType,
+    validate_scope_reference,
+)
+from app.models.constraint_instrument import ConstraintInstrument
 from app.models.fee_schedule import FeeSchedule, TradeSide
 from app.models.holding import Holding
 from app.models.instrument import Instrument
@@ -21,4 +29,10 @@ __all__ = [
     "TargetAllocation",
     "FeeSchedule",
     "TradeSide",
+    "Constraint",
+    "ConstraintType",
+    "ScopeType",
+    "ConstraintSeverity",
+    "validate_scope_reference",
+    "ConstraintInstrument",
 ]

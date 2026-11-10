@@ -1,11 +1,15 @@
 """Instrument SQLAlchemy entity."""
 
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, CheckConstraint, Numeric, String, true
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.constraint import Constraint
 
 
 class Instrument(Base):
@@ -29,5 +33,12 @@ class Instrument(Base):
         default=True,
         server_default=true(),
         nullable=False,
+    )
+
+    # Relationships
+    constraints: Mapped[list["Constraint"]] = relationship(
+        "Constraint",
+        secondary="constraint_instrument",
+        back_populates="instruments",
     )
 
