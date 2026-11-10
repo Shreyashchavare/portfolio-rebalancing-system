@@ -256,3 +256,5 @@ data/generated/
 # Private development notes and technical guide
 TECH_GUIDE.md
 working-notes/
+# Full-scale generated dataset (local verification artifacts)
+/data/full/

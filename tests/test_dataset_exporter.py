@@ -8,7 +8,7 @@ from pathlib import Path
 
 from synthetic_data.dataset_builder import build_dataset
 from synthetic_data.dataset_config import STARTER_CONFIG
-from synthetic_data.exporters.dataset_exporter import export_dataset
+from synthetic_data.exporters.dataset_exporter import _quote_identifier, export_dataset
 
 
 def _sha256(filepath: Path) -> str:
@@ -175,3 +175,69 @@ def test_cli_repeated_runs_produce_identical_artifact_hashes(tmp_path):
     files_a = {p.relative_to(run_a): _sha256(p) for p in run_a.rglob("*") if p.is_file()}
     files_b = {p.relative_to(run_b): _sha256(p) for p in run_b.rglob("*") if p.is_file()}
     assert files_a == files_b, f"CLI repeated exports differ:\n{set(files_a.items()) ^ set(files_b.items())}"
+
+
+def test_export_validation_summary_structure_and_counts(tmp_path):
+    output_dir = tmp_path / "val_summary_test"
+    baseline, anomalous, ground_truth, report = build_dataset(STARTER_CONFIG)
+
+    export_dataset(
+        dataset=anomalous,
+        ground_truth=ground_truth,
+        report=report,
+        output_dir=output_dir,
+        config=STARTER_CONFIG,
+    )
+
+    summary_file = output_dir / "validation_summary.json"
+    assert summary_file.exists()
+    summary = json.loads(summary_file.read_text(encoding="utf-8"))
+
+    assert summary["is_cleanly_reconciled"] is True
+    assert summary["total_anomalies"] == 5
+    assert summary["total_validation_errors"] == 6
+    assert summary["matched_anomalies"] == 5
+    assert summary["unreconciled_errors"] == []
+
+
+def test_quote_identifier_helper():
+    assert _quote_identifier("constraint") == '"constraint"'
+    assert _quote_identifier("portfolio") == '"portfolio"'
+    assert _quote_identifier('has"quote') == '"has""quote"'
+    assert _quote_identifier('mixed"quote"and"more') == '"mixed""quote""and""more"'
+
+
+def test_sql_export_quotes_table_and_column_identifiers(tmp_path):
+    import re
+
+    output_dir = tmp_path / "quoted_sql_test"
+    baseline, anomalous, ground_truth, report = build_dataset(STARTER_CONFIG)
+
+    export_dataset(
+        dataset=anomalous,
+        ground_truth=ground_truth,
+        report=report,
+        output_dir=output_dir,
+        config=STARTER_CONFIG,
+    )
+
+    sql_file = output_dir / "sql" / "seed_data.sql"
+    assert sql_file.exists()
+    sql_content = sql_file.read_text(encoding="utf-8")
+
+    # 1. Reserved identifier "constraint" is properly quoted
+    assert 'INSERT INTO "constraint" (' in sql_content
+    assert "INSERT INTO constraint " not in sql_content
+
+    # 2. Ordinary tables are quoted
+    assert 'INSERT INTO "portfolio" (' in sql_content
+    assert 'INSERT INTO "investor_profile" (' in sql_content
+
+    # 3. Column identifiers are safely quoted
+    assert '"constraint_id"' in sql_content
+    assert '"portfolio_id"' in sql_content
+    assert '"investor_id"' in sql_content
+
+    # 4. No unquoted table names in INSERT statements
+    unquoted_tables = re.findall(r'INSERT INTO ([^"\s\n]+)', sql_content)
+    assert unquoted_tables == [], f"Found unquoted tables in INSERT statements: {unquoted_tables}"

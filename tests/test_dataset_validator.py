@@ -97,3 +97,42 @@ def test_validate_with_ground_truth_reconciles_anomalies():
     reconciliation = validator.validate_with_ground_truth(anomalous_data, ground_truth)
     assert reconciliation.is_cleanly_reconciled, f"Unreconciled errors: {reconciliation.unreconciled_errors}"
     assert len(reconciliation.matched_anomalies) == len(ground_truth)
+
+
+def test_reconciliation_anomaly_count_semantics():
+    baseline = _build_test_dataset()
+    injector = AnomalyInjector(seed=123)
+    anomalous_data, ground_truth = injector.inject_all_anomalies(baseline)
+
+    validator = DatasetValidator()
+    raw_report = validator.validate_baseline(anomalous_data)
+    # Six raw validation errors across the five injected anomaly records
+    assert len(raw_report.errors) == 6
+    assert len(ground_truth) == 5
+
+    reconciliation = validator.validate_with_ground_truth(anomalous_data, ground_truth)
+    assert reconciliation.total_detected_anomalies == 5
+    assert reconciliation.total_validation_errors == 6
+    assert len(reconciliation.matched_anomalies) == 5
+    assert len(reconciliation.unreconciled_errors) == 0
+    assert reconciliation.is_cleanly_reconciled is True
+
+
+def test_reconciliation_fails_on_unknown_unreconciled_error():
+    from decimal import Decimal
+
+    baseline = _build_test_dataset()
+    injector = AnomalyInjector(seed=123)
+    anomalous_data, ground_truth = injector.inject_all_anomalies(baseline)
+
+    # Corrupt a non-anomalous trade that is NOT in ground truth
+    gt_ids = {gt.record_id for gt in ground_truth}
+    target_trade = next(t for t in anomalous_data["trade"] if t["trade_id"] not in gt_ids)
+    target_trade["trade_value"] += Decimal("500.0000")
+
+    validator = DatasetValidator()
+    reconciliation = validator.validate_with_ground_truth(anomalous_data, ground_truth)
+
+    assert reconciliation.is_cleanly_reconciled is False
+    assert len(reconciliation.unreconciled_errors) > 0
+    assert any(e.record_id == target_trade["trade_id"] for e in reconciliation.unreconciled_errors)

@@ -24,6 +24,12 @@ def _json_default(obj: Any) -> Any:
     raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
 
+def _quote_identifier(name: str) -> str:
+    """Safely quote a SQL identifier for PostgreSQL/ANSI SQL."""
+    escaped = name.replace('"', '""')
+    return f'"{escaped}"'
+
+
 def _format_sql_value(val: Any) -> str:
     """Format python value into SQL literal."""
     if val is None:
@@ -147,12 +153,13 @@ def export_dataset(
             if not tbl_records:
                 continue
             cols = list(tbl_records[0].keys())
+            quoted_tbl = _quote_identifier(tbl)
+            quoted_cols_str = ", ".join(_quote_identifier(col) for col in cols)
             f.write(f"-- Table: {tbl} ({len(tbl_records)} rows)\n")
             for rec in tbl_records:
                 vals = [_format_sql_value(rec.get(col)) for col in cols]
-                cols_str = ", ".join(cols)
                 vals_str = ", ".join(vals)
-                f.write(f"INSERT INTO {tbl} ({cols_str}) VALUES ({vals_str});\n")
+                f.write(f"INSERT INTO {quoted_tbl} ({quoted_cols_str}) VALUES ({vals_str});\n")
             f.write("\n")
     checksums["sql/seed_data.sql"] = _compute_file_sha256(sql_file)
 
@@ -172,6 +179,8 @@ def export_dataset(
     val_summary = {
         "is_cleanly_reconciled": report.is_cleanly_reconciled if report else True,
         "total_anomalies": report.total_detected_anomalies if report else len(ground_truth),
+        "total_validation_errors": report.total_validation_errors if report else len(ground_truth),
+        "matched_anomalies": len(report.matched_anomalies) if report else len(ground_truth),
         "unreconciled_errors": [
             {"field": e.field, "value": str(e.value), "message": e.message}
             for e in (report.unreconciled_errors if report else [])

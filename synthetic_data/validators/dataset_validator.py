@@ -25,6 +25,7 @@ class ReconciliationReport:
 
     is_cleanly_reconciled: bool
     total_detected_anomalies: int
+    total_validation_errors: int = 0
     matched_anomalies: list[GroundTruthRecord] = field(default_factory=list)
     unreconciled_errors: list[ValidationErrorDetail] = field(default_factory=list)
 
@@ -237,7 +238,8 @@ class DatasetValidator:
 
         return ReconciliationReport(
             is_cleanly_reconciled=is_reconciled,
-            total_detected_anomalies=len(report.errors),
+            total_detected_anomalies=len(matched),
+            total_validation_errors=len(report.errors),
             matched_anomalies=matched,
             unreconciled_errors=unreconciled,
         )
