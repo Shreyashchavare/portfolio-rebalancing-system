@@ -77,6 +77,41 @@ def test_generate_holdings_includes_cash_positions():
         assert len(p_cash) >= 1, f"Portfolio {p_id} has no CASH holding"
 
 
+def test_generate_holdings_exact_five_per_portfolio():
+    portfolios, instruments = _build_test_parents()
+    # min_holdings=4, max_holdings=4 produces exactly 1 cash + 4 non-cash = 5 holdings per portfolio
+    holdings = generate_holdings(
+        portfolios,
+        instruments,
+        as_of_date=date(2026, 1, 15),
+        min_holdings=4,
+        max_holdings=4,
+        seed=123,
+    )
+
+    expected_total = len(portfolios) * 5
+    assert len(holdings) == expected_total
+
+    instrument_map = {inst["instrument_id"]: inst for inst in instruments}
+
+    for p in portfolios:
+        p_id = p["portfolio_id"]
+        p_holdings = [h for h in holdings if h["portfolio_id"] == p_id]
+        assert len(p_holdings) == 5
+
+        # Check exactly one cash holding
+        cash_holdings = [h for h in p_holdings if instrument_map[h["instrument_id"]]["asset_class"] == "CASH"]
+        assert len(cash_holdings) == 1
+
+        # Check exactly 4 non-cash holdings
+        non_cash = [h for h in p_holdings if instrument_map[h["instrument_id"]]["asset_class"] != "CASH"]
+        assert len(non_cash) == 4
+
+        # Check without replacement (distinct instruments within portfolio)
+        p_inst_ids = [h["instrument_id"] for h in p_holdings]
+        assert len(set(p_inst_ids)) == 5
+
+
 def test_generate_holdings_determinism():
     portfolios, instruments = _build_test_parents()
     h1 = generate_holdings(portfolios, instruments, as_of_date=date(2026, 1, 15), seed=20261022)

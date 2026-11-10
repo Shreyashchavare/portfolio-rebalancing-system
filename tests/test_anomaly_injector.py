@@ -61,7 +61,6 @@ def test_injector_returns_ground_truth_and_anomalous_dataset():
 
     assert isinstance(ground_truth, list)
     assert len(ground_truth) >= 5
-    # Ground truth records must have required fields
     for gt in ground_truth:
         assert isinstance(gt, GroundTruthRecord)
         assert gt.record_id
@@ -84,6 +83,33 @@ def test_baseline_dataset_remains_unmodified():
     assert anomalous_data["trade"] != original_trades or anomalous_data["target_allocation"] != original_allocations
 
 
+def test_selective_copying_and_memory_isolation():
+    baseline = _build_test_baseline()
+    injector = AnomalyInjector(seed=123)
+    anomalous_data, _ = injector.inject_all_anomalies(baseline)
+
+    # 1. Read-only tables must NOT be deep-copied (shared by reference)
+    assert anomalous_data["market_price"] is baseline["market_price"], (
+        "market_price was deep-copied, causing memory waste on large datasets"
+    )
+    assert anomalous_data["holding"] is baseline["holding"], (
+        "holding was deep-copied unnecessarily"
+    )
+    assert anomalous_data["investor_profile"] is baseline["investor_profile"]
+    assert anomalous_data["portfolio"] is baseline["portfolio"]
+    assert anomalous_data["instrument"] is baseline["instrument"]
+    assert anomalous_data["fee_schedule"] is baseline["fee_schedule"]
+    assert anomalous_data["constraint"] is baseline["constraint"]
+
+    # 2. Mutated tables MUST be independently copied
+    assert anomalous_data["target_allocation"] is not baseline["target_allocation"], (
+        "target_allocation must be an independent copy"
+    )
+    assert anomalous_data["trade"] is not baseline["trade"], (
+        "trade must be an independent copy"
+    )
+
+
 def test_anomaly_allocation_sum_mismatch():
     baseline = _build_test_baseline()
     injector = AnomalyInjector(seed=123)
@@ -92,10 +118,15 @@ def test_anomaly_allocation_sum_mismatch():
     mismatch_gts = [gt for gt in ground_truth if gt.issue_type == IssueType.ALLOCATION_SUM_MISMATCH]
     assert len(mismatch_gts) >= 1
 
-    # Check affected portfolio
+    # Check that market_price is preserved by reference in single anomaly calls
+    assert anomalous_data["market_price"] is baseline["market_price"]
+    assert anomalous_data["target_allocation"] is not baseline["target_allocation"]
+
     affected_record_id = mismatch_gts[0].record_id
-    # Find matching allocation row
-    alloc = next(a for a in anomalous_data["target_allocation"] if str(a.get("id", a.get("portfolio_id"))) == affected_record_id or a["portfolio_id"] == affected_record_id)
+    alloc = next(
+        a for a in anomalous_data["target_allocation"]
+        if str(a.get("id", a.get("portfolio_id"))) == affected_record_id or a["portfolio_id"] == affected_record_id
+    )
     p_id = alloc["portfolio_id"]
     p_allocs = [a for a in anomalous_data["target_allocation"] if a["portfolio_id"] == p_id]
     total_weight = sum(a["target_weight"] for a in p_allocs)
@@ -110,11 +141,13 @@ def test_anomaly_excess_sell_quantity():
     excess_gts = [gt for gt in ground_truth if gt.issue_type == IssueType.EXCESS_SELL_QUANTITY]
     assert len(excess_gts) >= 1
 
+    assert anomalous_data["market_price"] is baseline["market_price"]
+    assert anomalous_data["trade"] is not baseline["trade"]
+
     trade_id = excess_gts[0].record_id
     trade = next(t for t in anomalous_data["trade"] if t["trade_id"] == trade_id)
     assert trade["trade_side"] == "SELL"
 
-    # Find holding for proposal's portfolio
     prop = next(p for p in anomalous_data["rebalance_proposal"] if p["proposal_id"] == trade["proposal_id"])
     p_id = prop["portfolio_id"]
     holding = next(
@@ -133,10 +166,12 @@ def test_anomaly_excluded_instrument_recommended():
     excl_gts = [gt for gt in ground_truth if gt.issue_type == IssueType.EXCLUDED_INSTRUMENT_RECOMMENDED]
     assert len(excl_gts) >= 1
 
+    assert anomalous_data["market_price"] is baseline["market_price"]
+    assert anomalous_data["trade"] is not baseline["trade"]
+
     trade_id = excl_gts[0].record_id
     trade = next(t for t in anomalous_data["trade"] if t["trade_id"] == trade_id)
 
-    # Check that there is an active EXCLUDED_INSTRUMENT constraint for this instrument
     excluded_inst_ids = {
         c["scope_reference_id"] for c in anomalous_data["constraint"] if c["constraint_type"] == "EXCLUDED_INSTRUMENT"
     }
@@ -151,6 +186,9 @@ def test_anomaly_missing_fee():
     fee_gts = [gt for gt in ground_truth if gt.issue_type == IssueType.MISSING_FEE]
     assert len(fee_gts) >= 1
 
+    assert anomalous_data["market_price"] is baseline["market_price"]
+    assert anomalous_data["trade"] is not baseline["trade"]
+
     trade_id = fee_gts[0].record_id
     trade = next(t for t in anomalous_data["trade"] if t["trade_id"] == trade_id)
     assert trade["fee_amount"] == Decimal("0.0000") or trade["fee_schedule_id"] is None
@@ -164,9 +202,11 @@ def test_anomaly_stale_price_usage():
     stale_gts = [gt for gt in ground_truth if gt.issue_type == IssueType.STALE_PRICE_USAGE]
     assert len(stale_gts) >= 1
 
+    assert anomalous_data["market_price"] is baseline["market_price"]
+    assert anomalous_data["trade"] is not baseline["trade"]
+
     trade_id = stale_gts[0].record_id
     trade = next(t for t in anomalous_data["trade"] if t["trade_id"] == trade_id)
-    # The trade unit price was set to a stale price that differs from latest market price
     assert trade["unit_price"] > Decimal("0")
 
 
