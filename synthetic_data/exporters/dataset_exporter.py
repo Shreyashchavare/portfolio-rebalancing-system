@@ -179,7 +179,7 @@ def export_dataset(
     val_summary = {
         "is_cleanly_reconciled": report.is_cleanly_reconciled if report else True,
         "total_anomalies": report.total_detected_anomalies if report else len(ground_truth),
-        "total_validation_errors": report.total_validation_errors if report else len(ground_truth),
+        "total_validation_errors": report.total_validation_errors if report else None,
         "matched_anomalies": len(report.matched_anomalies) if report else len(ground_truth),
         "unreconciled_errors": [
             {"field": e.field, "value": str(e.value), "message": e.message}

@@ -200,6 +200,33 @@ def test_export_validation_summary_structure_and_counts(tmp_path):
     assert summary["unreconciled_errors"] == []
 
 
+def test_export_validation_summary_fallback_when_report_is_none(tmp_path):
+    output_dir = tmp_path / "val_summary_none_test"
+    baseline, anomalous, ground_truth, _ = build_dataset(STARTER_CONFIG)
+
+    export_dataset(
+        dataset=anomalous,
+        ground_truth=ground_truth,
+        report=None,
+        output_dir=output_dir,
+        config=STARTER_CONFIG,
+    )
+
+    summary_file = output_dir / "validation_summary.json"
+    assert summary_file.exists()
+    summary = json.loads(summary_file.read_text(encoding="utf-8"))
+
+    # When report is None, total_validation_errors must fall back to None (null in JSON)
+    assert summary["total_validation_errors"] is None
+
+    # Existing fallback behavior for other fields remains unchanged
+    assert summary["is_cleanly_reconciled"] is True
+    assert summary["total_anomalies"] == len(ground_truth)
+    assert summary["matched_anomalies"] == len(ground_truth)
+    assert summary["unreconciled_errors"] == []
+
+
+
 def test_quote_identifier_helper():
     assert _quote_identifier("constraint") == '"constraint"'
     assert _quote_identifier("portfolio") == '"portfolio"'
