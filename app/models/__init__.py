@@ -1,6 +1,7 @@
 """Database models package."""
 
 from app.models.base import Base
+from app.models.fee_schedule import FeeSchedule, TradeSide
 from app.models.holding import Holding
 from app.models.instrument import Instrument
 from app.models.investor_profile import InvestorProfile, RiskCategory
@@ -18,4 +19,6 @@ __all__ = [
     "Holding",
     "MarketPrice",
     "TargetAllocation",
+    "FeeSchedule",
+    "TradeSide",
 ]
