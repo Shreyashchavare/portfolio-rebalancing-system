@@ -1,0 +1,48 @@
+"""Application configuration management using Pydantic Settings."""
+
+from functools import lru_cache
+from typing import Optional
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Application settings loaded from environment variables and .env file."""
+
+    APP_NAME: str = "portfolio-rebalancing-system"
+    APP_ENV: str = "development"
+    DEBUG: bool = True
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+
+    # PostgreSQL component settings (optional metadata)
+    POSTGRES_SERVER: Optional[str] = None
+    POSTGRES_PORT: Optional[int] = None
+    POSTGRES_USER: Optional[str] = None
+    POSTGRES_PASSWORD: Optional[str] = None
+    POSTGRES_DB: Optional[str] = None
+
+    # Database URL is strictly required when Settings is initialized
+    DATABASE_URL: str
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    @property
+    def database_url(self) -> str:
+        """Alias property for database URL."""
+        return self.DATABASE_URL
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """Return a cached Settings instance."""
+    return Settings()
+
+
+def clear_settings_cache() -> None:
+    """Clear the cached Settings instance (used primarily during testing)."""
+    get_settings.cache_clear()
