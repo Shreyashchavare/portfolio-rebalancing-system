@@ -10,6 +10,7 @@ from app.models.base import Base
 
 if TYPE_CHECKING:
     from app.models.constraint import Constraint
+    from app.models.trade import Trade
 
 
 class Instrument(Base):
@@ -40,5 +41,9 @@ class Instrument(Base):
         "Constraint",
         secondary="constraint_instrument",
         back_populates="instruments",
+    )
+    trades: Mapped[list["Trade"]] = relationship(
+        "Trade",
+        back_populates="instrument",
     )
 

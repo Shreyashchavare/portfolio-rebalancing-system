@@ -15,7 +15,13 @@ from app.models.instrument import Instrument
 from app.models.investor_profile import InvestorProfile, RiskCategory
 from app.models.market_price import MarketPrice
 from app.models.portfolio import Portfolio, PortfolioStatus
+from app.models.rebalance_proposal import (
+    ProposalStatus,
+    RebalanceProposal,
+    ReviewDecision,
+)
 from app.models.target_allocation import TargetAllocation
+from app.models.trade import Trade, TradeStatus
 
 __all__ = [
     "Base",
@@ -35,4 +41,9 @@ __all__ = [
     "ConstraintSeverity",
     "validate_scope_reference",
     "ConstraintInstrument",
+    "RebalanceProposal",
+    "ProposalStatus",
+    "ReviewDecision",
+    "Trade",
+    "TradeStatus",
 ]

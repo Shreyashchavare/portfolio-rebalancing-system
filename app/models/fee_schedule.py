@@ -3,7 +3,7 @@
 from datetime import date
 from decimal import Decimal
 import enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import (
     Boolean,
@@ -14,9 +14,12 @@ from sqlalchemy import (
     UniqueConstraint,
     true,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.trade import Trade
 
 
 class TradeSide(str, enum.Enum):
@@ -81,5 +84,11 @@ class FeeSchedule(Base):
         default=True,
         server_default=true(),
         nullable=False,
+    )
+
+    # Relationships
+    trades: Mapped[list["Trade"]] = relationship(
+        "Trade",
+        back_populates="fee_schedule",
     )
 

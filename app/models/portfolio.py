@@ -11,6 +11,7 @@ from app.models.base import Base
 
 if TYPE_CHECKING:
     from app.models.investor_profile import InvestorProfile
+    from app.models.rebalance_proposal import RebalanceProposal
 
 
 class PortfolioStatus(str, enum.Enum):
@@ -60,5 +61,9 @@ class Portfolio(Base):
     investor: Mapped["InvestorProfile"] = relationship(
         "InvestorProfile",
         back_populates="portfolios",
+    )
+    proposals: Mapped[list["RebalanceProposal"]] = relationship(
+        "RebalanceProposal",
+        back_populates="portfolio",
     )
 
