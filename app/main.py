@@ -1,10 +1,14 @@
 from fastapi import FastAPI
 
+from app.api.v1.analytics import router as analytics_router
+
 app = FastAPI(
     title="Portfolio Rebalancing System",
     description="Policy-Constrained Portfolio Rebalancing Recommendation System",
     version="0.1.0",
 )
+
+app.include_router(analytics_router)
 
 
 @app.get("/health")
