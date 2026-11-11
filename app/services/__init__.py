@@ -5,10 +5,15 @@ from app.services.portfolio_analytics_service import (
     PortfolioAnalyticsService,
     PortfolioNotFoundError,
 )
+from app.services.rebalancing_service import (
+    ConstraintViolationError,
+    RebalancingService,
+)
 
 __all__ = [
+    "ConstraintViolationError",
     "MissingPriceError",
     "PortfolioAnalyticsService",
     "PortfolioNotFoundError",
+    "RebalancingService",
 ]
-
