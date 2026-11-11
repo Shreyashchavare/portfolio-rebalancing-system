@@ -67,7 +67,7 @@ flowchart TD
 
 - **Runtime & Web Framework**: Python 3.12, FastAPI, Uvicorn, Pydantic v2.
 - **Data Access & Persistence**: SQLAlchemy 2.0 ORM and Core, Psycopg2 / SQLite3, PostgreSQL 15+.
-- **RAG & NLP**: Sentence-Transformers / Deterministic Vector Embeddings, Ollama Local LLM (`llama3:latest`).
+- **RAG & NLP**: FastEmbed ONNX / Deterministic Vector Embeddings, Ollama Local LLM (`llama3.2`).
 - **Testing & Verification**: Pytest 8.4, AnyIO, Unittest Mock.
 
 ---
@@ -109,7 +109,7 @@ flowchart TD
 
 1. **Fail-Closed Authentication**:
    - In production (`APP_ENV=production`), all client tokens must be cryptographically validated by a trusted Identity Provider. Unverified or client-supplied identities are rejected (`HTTP 401 Unauthorized`).
-   - Development mock authentication is guarded by an explicit environment flag (`ALLOW_DEV_MOCK_AUTH=true`) and strictly blocked in production mode.
+   - Development mock authentication is guarded by an explicit environment flag (`ENABLE_DEV_MOCK_AUTH=true`) and strictly blocked in production mode.
 2. **Role-Based Access Control (RBAC)**:
    - Approval and rejection endpoints restrict operations to verified roles (`REVIEWER`, `ADMIN`, `COMPLIANCE_OFFICER`, `PORTFOLIO_MANAGER`). Unauthorized roles receive `HTTP 403 Forbidden`.
 3. **Filesystem Traversal Protection**:
@@ -125,7 +125,7 @@ The repository maintains 100% test pass rates across unit, integration, and secu
 
 ### Pytest Execution Summary
 ```text
-============================ 505 passed in 27.32s =============================
+============================ 507 passed in 44.49s =============================
 Platform: Windows (Python 3.12.10)
 Failures: 0
 Skips: 0
@@ -140,6 +140,7 @@ Deprecation Warnings: 0
 - **Workflow State Machine & Idempotency**: `test_workflow_orchestration.py`, `test_workflow_service.py`
 - **Approval Governance, Audit & RBAC**: `test_approval_audit_api.py`, `test_auth_configuration.py`
 - **Deployment Automation & Migration Integrity**: `test_seed_database.py`
+- **Reviewer Demonstration & Walkthrough**: `test_demo_walkthrough.py`
 
 ### Package & Linter Checks
 - `pip check`: Clean (`No broken requirements found.`).

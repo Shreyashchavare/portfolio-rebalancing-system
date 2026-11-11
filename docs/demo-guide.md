@@ -9,7 +9,7 @@ This guide provides step-by-step instructions for evaluating the **Portfolio Reb
 ### System Requirements
 - **Python**: 3.12+ (tested on Python 3.12.10)
 - **Database**: PostgreSQL 15+ (recommended) or SQLite (supported for local evaluation)
-- **Local LLM (Optional)**: Ollama serving `llama3:latest` on `http://localhost:11434` (graceful fallback provided if offline)
+- **Local LLM (Optional)**: Ollama serving `llama3.2` on `http://localhost:11434` (graceful fallback provided if offline)
 
 ### Virtual Environment Setup
 ```powershell
@@ -26,10 +26,10 @@ Copy the provided `.env.example` to `.env` or set environment variables:
 # SQLite local demo configuration
 DATABASE_URL=sqlite:///demo_rebalancing.db
 APP_ENV=development
-ALLOW_DEV_MOCK_AUTH=true
+ENABLE_DEV_MOCK_AUTH=true
 USE_FAKE_EMBEDDINGS=true
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3:latest
+LOCAL_LLM_URL=http://localhost:11434
+LOCAL_LLM_MODEL=llama3.2
 ```
 
 ---
@@ -189,7 +189,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/workflows" \
 ---
 
 ### 4.4. Human Review Approval / Rejection
-Governance actions require an authenticated reviewer principal. In development mode with `ALLOW_DEV_MOCK_AUTH=true`, the Bearer token `dev-reviewer-token` establishes identity as `REV-DEV-01` (`REVIEWER`).
+Governance actions require an authenticated reviewer principal. In development mode with `ENABLE_DEV_MOCK_AUTH=true`, the Bearer token `dev-reviewer-token` establishes identity as `REV-DEV-01` (`REVIEWER`).
 
 #### Reject a Proposal with Mandatory Reason
 ```bash
@@ -217,7 +217,7 @@ curl -X GET "http://127.0.0.1:8000/api/v1/proposals/RB-2026-000004/audit"
 ## 5. Authentication & Security Notes
 
 1. **Production Default**: All requests require verified cryptographic Bearer tokens. Client-supplied identities (`X-Reviewer-Id`) are strictly rejected.
-2. **Development Mock**: When `APP_ENV=development` and `ALLOW_DEV_MOCK_AUTH=true`, standard test tokens are enabled:
+2. **Development Mock**: When `APP_ENV=development` and `ENABLE_DEV_MOCK_AUTH=true`, standard test tokens are enabled:
    - `Bearer dev-reviewer-token` -> Role: `REVIEWER`, Principal: `REV-DEV-01`
    - `Bearer dev-admin-token` -> Role: `ADMIN`, Principal: `REV-DEV-ADMIN`
    - `Bearer dev-viewer-token` -> Role: `VIEWER` (rejected with HTTP 403 on approval/rejection endpoints)
@@ -232,7 +232,7 @@ curl -X GET "http://127.0.0.1:8000/api/v1/proposals/RB-2026-000004/audit"
 - **Ollama Connection Warning**:
   - The system will log a warning if Ollama is offline and fall back gracefully to structured policy citations. To enable full generative explanations, run:
     ```bash
-    ollama run llama3:latest
+    ollama run llama3.2
     ```
 - **Permission Denied (HTTP 403)**:
   - Ensure you pass `-H "Authorization: Bearer dev-reviewer-token"`. The endpoint enforces `PERMITTED_APPROVAL_ROLES = {"REVIEWER", "ADMIN", "COMPLIANCE_OFFICER", "PORTFOLIO_MANAGER"}`.

@@ -6,7 +6,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-green.svg)](https://fastapi.tiangolo.com/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0+-red.svg)](https://www.sqlalchemy.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17+-blue.svg)](https://www.postgresql.org/)
-[![Tests](https://img.shields.io/badge/Tests-461%20Passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-507%20Passed-brightgreen.svg)]()
 
 ---
 
@@ -154,7 +154,7 @@ portfolio-rebalancing-system/
 │   └── migrations/                  # Sequential PostgreSQL DDL (000–003)
 ├── policy_documents/                # Sample Markdown compliance mandates & ESG policies
 ├── synthetic_data/                  # Synthetic dataset generator & anomaly injector
-├── tests/                           # 39 Pytest test suites (461 tests)
+├── tests/                           # 43 Pytest test suites (507 tests)
 ├── .env.example                     # Environment template
 ├── pytest.ini                       # Test runner configuration
 └── requirements.txt                 # Project dependencies
@@ -339,9 +339,9 @@ pytest -q
 ```
 
 ### Test Suite Summary
-- **Total Tests:** 462 collected (461 passed, 1 skipped)
-- **Execution Time:** ~18 seconds
-- **Skipped Test:** `test_pgvector_similarity_search_in_database` is skipped automatically when running against SQLite because `pgvector` C-extensions are specific to PostgreSQL. The relational vector store falls back to vectorized NumPy cosine similarity seamlessly.
+- **Total Tests:** 507 passed (0 skipped, 0 warnings)
+- **Execution Time:** ~25-45 seconds
+- **Pass Rate:** 100% across all unit, integration, security, and deployment test suites.
 
 ---
 
