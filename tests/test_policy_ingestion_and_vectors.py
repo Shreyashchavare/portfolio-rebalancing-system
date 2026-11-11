@@ -1128,22 +1128,42 @@ class TestVectorStore:
         session.close()
 
     def test_document_extractor_symlink_defense(self, tmp_path: Path):
-        """Safety Test: DocumentExtractor prevents reading targets outside allowed_root via symlinks."""
+        """Safety Test: DocumentExtractor prevents reading targets outside allowed_root via symlinks or junctions."""
+        import sys
         safe_dir = tmp_path / "safe_dir"
         safe_dir.mkdir()
-        outside_secret = tmp_path / "outside_secret.txt"
+        outside_dir = tmp_path / "outside_dir"
+        outside_dir.mkdir()
+        outside_secret = outside_dir / "outside_secret.txt"
         outside_secret.write_text("classified data", encoding="utf-8")
 
+        target_file = None
+        link_exercised = False
+
+        # 1. Attempt standard file symlink first
         symlink_file = safe_dir / "symlink_to_outside.txt"
         try:
             symlink_file.symlink_to(outside_secret)
+            target_file = symlink_file
+            link_exercised = True
         except (OSError, NotImplementedError):
-            # If OS does not permit symlinks without administrator privileges, skip symlink creation
-            pytest.skip("Symlink creation not permitted by OS in current security context")
+            # 2. On Windows without Developer Mode, attempt directory junction (NTFS reparse point)
+            if sys.platform == "win32":
+                try:
+                    import _winapi
+                    junction_dir = safe_dir / "junction_to_outside"
+                    _winapi.CreateJunction(str(outside_dir), str(junction_dir))
+                    target_file = junction_dir / "outside_secret.txt"
+                    link_exercised = True
+                except Exception:
+                    pass
+
+        if not link_exercised or target_file is None:
+            pytest.skip("Neither symlink nor junction creation permitted by OS in current security context")
 
         extractor = DocumentExtractor(allowed_root=safe_dir)
         with pytest.raises(PathTraversalError):
-            extractor.extract(symlink_file)
+            extractor.extract(target_file)
 
 
 

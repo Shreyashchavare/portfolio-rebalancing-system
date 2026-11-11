@@ -845,7 +845,7 @@ class TestApprovalAndAuditRESTAPI:
 
         client = TestClient(app)
         res = client.post("/api/v1/proposals/PROP-API-REJ/reject", json={"reason": "   "})
-        assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
         res2 = client.post(
             "/api/v1/proposals/PROP-API-REJ/reject",

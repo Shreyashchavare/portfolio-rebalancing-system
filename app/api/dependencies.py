@@ -55,28 +55,75 @@ class DevMockAuthenticationVerifier(BaseAuthenticationVerifier):
         return self.allowed_tokens.get(token)
 
 
+def get_auth_settings() -> tuple[str, str, bool]:
+    """Resolve authentication configuration consistently from application settings and environment.
+
+    Returns:
+        tuple of (app_env: str, auth_provider: str, enable_dev_mock_auth: bool)
+    """
+    try:
+        from app.core.config import get_settings
+
+        settings = get_settings()
+        default_env = settings.APP_ENV
+        default_provider = settings.AUTH_PROVIDER
+        default_mock = settings.ENABLE_DEV_MOCK_AUTH
+    except Exception:
+        default_env = "development"
+        default_provider = "production"
+        default_mock = False
+
+    # Process environment overrides (CLI, container runtime, monkeypatching) take precedence
+    app_env = os.environ.get("APP_ENV", default_env).strip().lower()
+    auth_provider = os.environ.get("AUTH_PROVIDER", default_provider).strip().lower()
+
+    if "ENABLE_DEV_MOCK_AUTH" in os.environ:
+        raw_mock = os.environ["ENABLE_DEV_MOCK_AUTH"].strip().lower()
+        enable_dev_mock = raw_mock in ("1", "true", "yes", "on")
+    else:
+        enable_dev_mock = bool(default_mock)
+
+    return app_env, auth_provider, enable_dev_mock
+
+
 def get_auth_verifier() -> BaseAuthenticationVerifier:
     """Dependency provider returning the active AuthenticationVerifier.
 
-    Enforces that development mock authentication CANNOT be activated in a production environment.
+    Enforces that development mock authentication CANNOT be activated in a production environment,
+    requires explicit development-only opt-in, and rejects contradictory configurations clearly.
     """
-    app_env = os.getenv("APP_ENV", "development").lower()
-    enable_dev_mock_str = os.getenv("ENABLE_DEV_MOCK_AUTH", "false").lower()
-    enable_dev_mock = enable_dev_mock_str in ("1", "true", "yes", "on")
+    app_env, auth_provider, enable_dev_mock = get_auth_settings()
 
-    # In production environments, mock authentication is strictly forbidden
+    # Rule 1: Production boundary — Fail Closed
+    # In production environments, mock authentication is strictly forbidden under all circumstances
     if app_env in ("production", "prod"):
-        if enable_dev_mock:
-            logger.error("SECURITY VIOLATION: ENABLE_DEV_MOCK_AUTH attempted in production environment!")
+        if enable_dev_mock or auth_provider in ("mock", "dev_mock"):
+            logger.error(
+                "SECURITY VIOLATION: Mock authentication attempted in production environment! (app_env=%s, auth_provider=%s, mock=%s)",
+                app_env,
+                auth_provider,
+                enable_dev_mock,
+            )
             raise RuntimeError(
                 "Development-only mock authentication cannot be activated in a production environment."
             )
         return ProductionAuthenticationVerifier()
 
+    # Rule 2: Contradictory settings check in non-production environments
+    # e.g. AUTH_PROVIDER=mock but ENABLE_DEV_MOCK_AUTH=False
+    if auth_provider in ("mock", "dev_mock") and not enable_dev_mock:
+        raise ValueError(
+            "Contradictory authentication configuration: AUTH_PROVIDER is set to 'mock' but "
+            "ENABLE_DEV_MOCK_AUTH is False. Mock authentication requires an explicit development opt-in "
+            "via ENABLE_DEV_MOCK_AUTH=True."
+        )
+
+    # Rule 3: Explicit development mock enablement
     if enable_dev_mock:
         logger.info("Using DevMockAuthenticationVerifier for local development/testing.")
         return DevMockAuthenticationVerifier()
 
+    # Rule 4: Default non-production fallback is ProductionAuthenticationVerifier (fails closed)
     return ProductionAuthenticationVerifier()
 
 

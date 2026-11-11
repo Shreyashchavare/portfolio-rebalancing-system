@@ -28,13 +28,17 @@ class Settings(BaseSettings):
     # Policy RAG configuration
     POLICY_DOCUMENTS_DIR: str = "policy_documents"
     EMBEDDING_MODEL_NAME: str = "BAAI/bge-small-en-v1.5"
+    EMBEDDING_CACHE_DIR: Optional[str] = None
     RAG_CHUNK_SIZE: int = 500
     RAG_CHUNK_OVERLAP: int = 50
     RAG_TOP_K: int = 5
     RAG_SIMILARITY_THRESHOLD: float = 0.5
     LOCAL_LLM_URL: Optional[str] = "http://localhost:11434"
+    LOCAL_LLM_MODEL: str = "llama3.2"
+    LOCAL_LLM_TIMEOUT: float = 5.0
 
     # Authentication security configuration
+    AUTH_PROVIDER: str = "production"
     ENABLE_DEV_MOCK_AUTH: bool = False
 
 

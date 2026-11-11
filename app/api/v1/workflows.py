@@ -60,12 +60,12 @@ def initiate_workflow(
             ) from exc
         if isinstance(cause, MissingPriceError):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=str(cause),
             ) from exc
         logger.warning("Workflow execution failed for portfolio %s: %s", request.portfolio_id, exc)
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(exc),
         ) from exc
     except Exception as exc:

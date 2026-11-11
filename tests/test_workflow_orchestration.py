@@ -853,7 +853,7 @@ class TestWorkflowInitiationRESTAPI:
                 # Missing request_key
             },
         )
-        assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
     def test_initiate_workflow_idempotent_retry_returns_200_same_workflow(self):
         """Identical retry returns the existing workflow with status 200."""

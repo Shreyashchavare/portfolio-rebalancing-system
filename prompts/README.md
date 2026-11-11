@@ -8,7 +8,6 @@ This directory maintains the prompt history used during the development of the P
 |---|---|
 | ChatGPT | Technical guidance, architecture decisions, development planning, testing strategy and code review |
 | Antigravity | Code generation, implementation assistance and debugging |
-| Codex | Additional coding assistance |
 | Claude | Documentation assistance |
 
 ## Prompt Organization

@@ -57,7 +57,7 @@ def approve_proposal(
     except ApprovalAuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)) from exc
     except (InvalidProposalStateError, SafetyInterventionRequiredError) as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
     except Exception as exc:
         logger.exception("Unexpected error approving proposal %s: %s", proposal_id, exc)
         raise HTTPException(
@@ -92,7 +92,7 @@ def reject_proposal(
     except ApprovalAuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)) from exc
     except (InvalidProposalStateError, InvalidRejectionReasonError, ValueError) as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
     except Exception as exc:
         logger.exception("Unexpected error rejecting proposal %s: %s", proposal_id, exc)
         raise HTTPException(

@@ -34,7 +34,22 @@ class ExplanationService:
         prompt_builder: Optional[ExplanationPromptBuilder] = None,
         citation_validator: Optional[CitationValidator] = None,
     ) -> None:
-        self.llm_client = llm_client or LocalLLMClient()
+        if llm_client is not None:
+            self.llm_client = llm_client
+        else:
+            try:
+                from app.core.config import get_settings
+                settings = get_settings()
+                base_url = getattr(settings, "LOCAL_LLM_URL", "http://localhost:11434") or "http://localhost:11434"
+                model_name = getattr(settings, "LOCAL_LLM_MODEL", "llama3.2") or "llama3.2"
+                timeout = float(getattr(settings, "LOCAL_LLM_TIMEOUT", 5.0) or 5.0)
+                self.llm_client = LocalLLMClient(base_url=base_url, model_name=model_name, timeout_seconds=timeout)
+            except Exception:
+                import os
+                base_url = os.environ.get("LOCAL_LLM_URL", "http://localhost:11434")
+                model_name = os.environ.get("LOCAL_LLM_MODEL", "llama3.2")
+                timeout = float(os.environ.get("LOCAL_LLM_TIMEOUT", "5.0"))
+                self.llm_client = LocalLLMClient(base_url=base_url, model_name=model_name, timeout_seconds=timeout)
         self.prompt_builder = prompt_builder or ExplanationPromptBuilder()
         self.citation_validator = citation_validator or CitationValidator()
 

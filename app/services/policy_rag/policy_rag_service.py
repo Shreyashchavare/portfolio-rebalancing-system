@@ -76,16 +76,22 @@ class PolicyRAGService:
         try:
             settings = get_settings()
             default_model = getattr(settings, "EMBEDDING_MODEL_NAME", "BAAI/bge-small-en-v1.5")
+            default_cache_dir = getattr(settings, "EMBEDDING_CACHE_DIR", None)
             default_chunk_size = getattr(settings, "RAG_CHUNK_SIZE", 500)
             default_chunk_overlap = getattr(settings, "RAG_CHUNK_OVERLAP", 50)
             default_dir = getattr(settings, "POLICY_DOCUMENTS_DIR", "policy_documents")
             default_llm_url = getattr(settings, "LOCAL_LLM_URL", "http://localhost:11434") or "http://localhost:11434"
+            default_llm_model = getattr(settings, "LOCAL_LLM_MODEL", "llama3.2") or "llama3.2"
+            default_llm_timeout = float(getattr(settings, "LOCAL_LLM_TIMEOUT", 5.0) or 5.0)
         except Exception:
             default_model = os.environ.get("EMBEDDING_MODEL_NAME", "BAAI/bge-small-en-v1.5")
+            default_cache_dir = os.environ.get("EMBEDDING_CACHE_DIR", None)
             default_chunk_size = int(os.environ.get("RAG_CHUNK_SIZE", 500))
             default_chunk_overlap = int(os.environ.get("RAG_CHUNK_OVERLAP", 50))
             default_dir = os.environ.get("POLICY_DOCUMENTS_DIR", "policy_documents")
-            default_llm_url = os.environ.get("LOCAL_LLM_URL", "http://localhost:11434")
+            default_llm_url = os.environ.get("LOCAL_LLM_URL", "http://localhost:11434") or "http://localhost:11434"
+            default_llm_model = os.environ.get("LOCAL_LLM_MODEL", "llama3.2") or "llama3.2"
+            default_llm_timeout = float(os.environ.get("LOCAL_LLM_TIMEOUT", "5.0"))
 
         # Initialize or inject embedding service
         if embedding_service is not None:
@@ -93,6 +99,7 @@ class PolicyRAGService:
         else:
             self.embedding_service = EmbeddingService(
                 model_name=default_model,
+                cache_dir=default_cache_dir,
             )
 
         # Initialize or inject vector store
@@ -110,6 +117,8 @@ class PolicyRAGService:
         else:
             self.llm_client = LocalLLMClient(
                 base_url=default_llm_url,
+                model_name=default_llm_model,
+                timeout_seconds=default_llm_timeout,
             )
 
         # Initialize or inject document extractor and chunker
@@ -201,34 +210,38 @@ class PolicyRAGService:
                     f"Policy '{request.title}' version '{request.version}' is already ingested."
                 )
 
-        # Generate unique document ID
-        doc_id = f"DOC-{uuid4().hex[:8].upper()}"
+        try:
+            # Generate unique document ID
+            doc_id = f"DOC-{uuid4().hex[:8].upper()}"
 
-        doc = PolicyDocument(
-            id=doc_id,
-            policy_family_id=family_id,
-            filename=extracted.filename,
-            title=request.title,
-            document_type=request.document_type,
-            version=request.version,
-            effective_from=request.effective_from,
-            effective_to=request.effective_to,
-            status=request.status,
-            file_path=str(extracted.file_path),
-            sha256_checksum=extracted.sha256_checksum,
-            uploaded_at=datetime.now(timezone.utc),
-        )
-        self.session.add(doc)
-        self.session.flush()
+            doc = PolicyDocument(
+                id=doc_id,
+                policy_family_id=family_id,
+                filename=extracted.filename,
+                title=request.title,
+                document_type=request.document_type,
+                version=request.version,
+                effective_from=request.effective_from,
+                effective_to=request.effective_to,
+                status=request.status,
+                file_path=str(extracted.file_path),
+                sha256_checksum=extracted.sha256_checksum,
+                uploaded_at=datetime.now(timezone.utc),
+            )
+            self.session.add(doc)
+            self.session.flush()
 
-        # Chunk document text
-        chunks = self.chunker.chunk_text(extracted.text, title=request.title)
-        if not chunks:
-            raise PolicyIngestionError(f"Document '{extracted.filename}' produced 0 text chunks.")
+            # Chunk document text
+            chunks = self.chunker.chunk_text(extracted.text, title=request.title)
+            if not chunks:
+                raise PolicyIngestionError(f"Document '{extracted.filename}' produced 0 text chunks.")
 
-        # Embed and persist chunks
-        persisted_chunks = self.vector_store.store_document_chunks(doc, chunks)
-        self.session.commit()
+            # Embed and persist chunks
+            persisted_chunks = self.vector_store.store_document_chunks(doc, chunks)
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
 
         return PolicyIngestResponse(
             id=doc.id,

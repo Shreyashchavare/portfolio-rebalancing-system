@@ -59,7 +59,7 @@ def ingest_policy_document(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except (DocumentSizeLimitExceededError, EmptyDocumentError, ValueError, PolicyIngestionError) as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
         ) from exc
     except Exception as exc:
         logger.exception("Unexpected error ingesting policy '%s': %s", request.title, exc)
