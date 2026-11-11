@@ -1,5 +1,31 @@
 """Pydantic schemas and data validation models."""
 
+from app.schemas.approval import (
+    ApprovalDecisionResponse,
+    ApproveProposalRequest,
+    RejectProposalRequest,
+    ReviewerContext,
+)
+from app.schemas.audit import (
+    AuditEventResponse,
+    AuditListResponse,
+)
+from app.schemas.explanation import (
+    ExplanationCitation,
+    ExplanationRequest,
+    ExplanationResponse,
+    ExplanationStatus,
+    TradeExplanationItem,
+)
+from app.schemas.orchestration import (
+    IdempotencyConflictError,
+    InvalidStateTransitionError,
+    WorkflowExecutionError,
+    WorkflowOrchestrationError,
+    WorkflowRequest,
+    WorkflowResponse,
+    WorkflowStatus,
+)
 from app.schemas.policy_rag import (
     PolicyAskRequest,
     PolicyAskResponse,
@@ -66,4 +92,22 @@ __all__ = [
     "PolicyCitation",
     "PolicyAskRequest",
     "PolicyAskResponse",
+    "WorkflowStatus",
+    "WorkflowRequest",
+    "WorkflowResponse",
+    "WorkflowOrchestrationError",
+    "IdempotencyConflictError",
+    "InvalidStateTransitionError",
+    "WorkflowExecutionError",
+    "ExplanationStatus",
+    "ExplanationCitation",
+    "TradeExplanationItem",
+    "ExplanationRequest",
+    "ExplanationResponse",
+    "ReviewerContext",
+    "ApproveProposalRequest",
+    "RejectProposalRequest",
+    "ApprovalDecisionResponse",
+    "AuditEventResponse",
+    "AuditListResponse",
 ]

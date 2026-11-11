@@ -28,6 +28,8 @@ from app.models.rebalance_proposal import (
 )
 from app.models.target_allocation import TargetAllocation
 from app.models.trade import Trade, TradeStatus
+from app.models.workflow_run import WorkflowRun
+from app.models.audit_event import AuditEvent
 
 __all__ = [
     "Base",
@@ -56,4 +58,6 @@ __all__ = [
     "PolicyChunk",
     "PolicyDocumentType",
     "PolicyStatus",
+    "WorkflowRun",
+    "AuditEvent",
 ]

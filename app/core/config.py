@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     RAG_SIMILARITY_THRESHOLD: float = 0.5
     LOCAL_LLM_URL: Optional[str] = "http://localhost:11434"
 
+    # Authentication security configuration
+    ENABLE_DEV_MOCK_AUTH: bool = False
+
 
     model_config = SettingsConfigDict(
         env_file=".env",

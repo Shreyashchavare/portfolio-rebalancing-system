@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 
 from app.api.v1.analytics import router as analytics_router
+from app.api.v1.approvals import router as approvals_router
 from app.api.v1.policies import router as policies_router
 from app.api.v1.rebalancing import router as rebalancing_router
+from app.api.v1.workflows import router as workflows_router
 
 app = FastAPI(
     title="Portfolio Rebalancing System",
@@ -11,8 +13,10 @@ app = FastAPI(
 )
 
 app.include_router(analytics_router)
+app.include_router(approvals_router)
 app.include_router(policies_router)
 app.include_router(rebalancing_router)
+app.include_router(workflows_router)
 
 
 @app.get("/health")
