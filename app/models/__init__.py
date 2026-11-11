@@ -14,6 +14,12 @@ from app.models.holding import Holding
 from app.models.instrument import Instrument
 from app.models.investor_profile import InvestorProfile, RiskCategory
 from app.models.market_price import MarketPrice
+from app.models.policy_document import (
+    PolicyChunk,
+    PolicyDocument,
+    PolicyDocumentType,
+    PolicyStatus,
+)
 from app.models.portfolio import Portfolio, PortfolioStatus
 from app.models.rebalance_proposal import (
     ProposalStatus,
@@ -46,4 +52,8 @@ __all__ = [
     "ReviewDecision",
     "Trade",
     "TradeStatus",
+    "PolicyDocument",
+    "PolicyChunk",
+    "PolicyDocumentType",
+    "PolicyStatus",
 ]

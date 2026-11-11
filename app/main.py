@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.api.v1.analytics import router as analytics_router
+from app.api.v1.policies import router as policies_router
 from app.api.v1.rebalancing import router as rebalancing_router
 
 app = FastAPI(
@@ -10,6 +11,7 @@ app = FastAPI(
 )
 
 app.include_router(analytics_router)
+app.include_router(policies_router)
 app.include_router(rebalancing_router)
 
 

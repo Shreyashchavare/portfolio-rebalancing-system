@@ -1,5 +1,21 @@
 """Pydantic schemas and data validation models."""
 
+from app.schemas.policy_rag import (
+    PolicyAskRequest,
+    PolicyAskResponse,
+    PolicyChunkResponse,
+    PolicyChunkSummary,
+    PolicyCitation,
+    PolicyDocumentDetailResponse,
+    PolicyDocumentMetadata,
+    PolicyDocumentResponse,
+    PolicyIngestRequest,
+    PolicyIngestResponse,
+    PolicyQueryRequest,
+    PolicySearchRequest,
+    PolicySearchResponse,
+    PolicySearchResult,
+)
 from app.schemas.portfolio_analytics import (
     AssetClassAllocation,
     AssetClassDrift,
@@ -36,4 +52,18 @@ __all__ = [
     "SimulatedAllocation",
     "SimulatedPosition",
     "TradeResponse",
+    "PolicyDocumentMetadata",
+    "PolicyChunkResponse",
+    "PolicyChunkSummary",
+    "PolicyDocumentResponse",
+    "PolicyDocumentDetailResponse",
+    "PolicyIngestRequest",
+    "PolicyIngestResponse",
+    "PolicySearchResult",
+    "PolicySearchRequest",
+    "PolicySearchResponse",
+    "PolicyQueryRequest",
+    "PolicyCitation",
+    "PolicyAskRequest",
+    "PolicyAskResponse",
 ]

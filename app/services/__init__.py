@@ -1,5 +1,16 @@
 """Business logic and services."""
 
+from app.services.policy_rag import (
+    BaseEmbeddingService,
+    DocumentExtractor,
+    EmbeddingService,
+    FakeEmbeddingService,
+    PolicyIngestionError,
+    PolicyNotFoundError,
+    PolicyRAGService,
+    TextChunker,
+    VectorStore,
+)
 from app.services.portfolio_analytics_service import (
     MissingPriceError,
     PortfolioAnalyticsService,
@@ -16,4 +27,13 @@ __all__ = [
     "PortfolioAnalyticsService",
     "PortfolioNotFoundError",
     "RebalancingService",
+    "DocumentExtractor",
+    "TextChunker",
+    "BaseEmbeddingService",
+    "EmbeddingService",
+    "FakeEmbeddingService",
+    "VectorStore",
+    "PolicyRAGService",
+    "PolicyNotFoundError",
+    "PolicyIngestionError",
 ]

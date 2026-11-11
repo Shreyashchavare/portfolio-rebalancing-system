@@ -25,6 +25,16 @@ class Settings(BaseSettings):
     # Database URL is strictly required when Settings is initialized
     DATABASE_URL: str
 
+    # Policy RAG configuration
+    POLICY_DOCUMENTS_DIR: str = "policy_documents"
+    EMBEDDING_MODEL_NAME: str = "BAAI/bge-small-en-v1.5"
+    RAG_CHUNK_SIZE: int = 500
+    RAG_CHUNK_OVERLAP: int = 50
+    RAG_TOP_K: int = 5
+    RAG_SIMILARITY_THRESHOLD: float = 0.5
+    LOCAL_LLM_URL: Optional[str] = "http://localhost:11434"
+
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
