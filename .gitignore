@@ -258,3 +258,7 @@ TECH_GUIDE.md
 working-notes/
 # Full-scale generated dataset (local verification artifacts)
 /data/full/
+
+# Local Hugging Face model cache artifacts
+/CACHEDIR.TAG
+/models--Qdrant--bge-small-en-v1.5-onnx-Q/

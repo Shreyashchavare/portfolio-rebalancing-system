@@ -77,13 +77,17 @@ def test_missing_database_url_handled_clearly(monkeypatch):
         Settings(_env_file=None)
 
 
-def test_missing_database_url_raises_configuration_error_in_session(monkeypatch):
+def test_missing_database_url_raises_configuration_error_in_session(monkeypatch, tmp_path):
     """Verify that attempting to create an engine without DATABASE_URL raises a clear error.
 
     Ensures there is NO silent fallback to SQLite in-memory when configuration is omitted.
     """
     monkeypatch.delenv("DATABASE_URL", raising=False)
     monkeypatch.delenv("database_url", raising=False)
+
+    # Run outside the project directory so the project's .env is not loaded.
+    monkeypatch.chdir(tmp_path)
+
     clear_settings_cache()
     reset_db_state()
 

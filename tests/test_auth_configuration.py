@@ -1,4 +1,4 @@
-"""Tests for authentication configuration, safety boundaries, and mock authorization precedence."""
+﻿"""Tests for authentication configuration, safety boundaries, and mock authorization precedence."""
 
 import pytest
 
@@ -51,6 +51,7 @@ def test_explicit_development_mock_enablement(monkeypatch):
 def test_disabled_mock_auth_in_development(monkeypatch):
     """When ENABLE_DEV_MOCK_AUTH is false in development, verifier fails closed."""
     monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.setenv("AUTH_PROVIDER", "production")
     monkeypatch.setenv("ENABLE_DEV_MOCK_AUTH", "false")
 
     verifier = get_auth_verifier()
