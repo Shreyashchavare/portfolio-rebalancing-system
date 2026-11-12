@@ -1,0 +1,200 @@
+{
+  "seed": 20261022,
+  "row_count_match": true,
+  "checksum_match": true,
+  "ground_truth_isolated": true,
+  "row_counts": {
+    "investor_profile": {
+      "run1_count": 5,
+      "run2_count": 5,
+      "match": true
+    },
+    "portfolio": {
+      "run1_count": 10,
+      "run2_count": 10,
+      "match": true
+    },
+    "instrument": {
+      "run1_count": 20,
+      "run2_count": 20,
+      "match": true
+    },
+    "market_price": {
+      "run1_count": 600,
+      "run2_count": 600,
+      "match": true
+    },
+    "target_allocation": {
+      "run1_count": 40,
+      "run2_count": 40,
+      "match": true
+    },
+    "holding": {
+      "run1_count": 53,
+      "run2_count": 53,
+      "match": true
+    },
+    "fee_schedule": {
+      "run1_count": 30,
+      "run2_count": 30,
+      "match": true
+    },
+    "constraint": {
+      "run1_count": 28,
+      "run2_count": 28,
+      "match": true
+    },
+    "constraint_instrument": {
+      "run1_count": 3,
+      "run2_count": 3,
+      "match": true
+    },
+    "rebalance_proposal": {
+      "run1_count": 10,
+      "run2_count": 10,
+      "match": true
+    },
+    "trade": {
+      "run1_count": 20,
+      "run2_count": 20,
+      "match": true
+    },
+    "ground_truth": {
+      "run1_count": 5,
+      "run2_count": 5,
+      "match": true
+    }
+  },
+  "checksums": {
+    "csv/constraint.csv": {
+      "run1_sha256": "7a8697f601abe82906dcb4b202cf2545c45630b1f3842cd8dfb4842ceb8ec553",
+      "run2_sha256": "7a8697f601abe82906dcb4b202cf2545c45630b1f3842cd8dfb4842ceb8ec553",
+      "match": true
+    },
+    "csv/constraint_instrument.csv": {
+      "run1_sha256": "5a8df71e7d90bf3e470c78d80ebb68a698cd435063fe698c6d3f370b51ea386c",
+      "run2_sha256": "5a8df71e7d90bf3e470c78d80ebb68a698cd435063fe698c6d3f370b51ea386c",
+      "match": true
+    },
+    "csv/fee_schedule.csv": {
+      "run1_sha256": "bbd104f6031a593633f611951a5e74406f15e0943ebfd0df906d3ac85d8ebf03",
+      "run2_sha256": "bbd104f6031a593633f611951a5e74406f15e0943ebfd0df906d3ac85d8ebf03",
+      "match": true
+    },
+    "csv/ground_truth.csv": {
+      "run1_sha256": "7e2f2bd5b4efcd04fa786fd3f07f7e1d4a5ebb99029bba89f92aa3710dc99990",
+      "run2_sha256": "7e2f2bd5b4efcd04fa786fd3f07f7e1d4a5ebb99029bba89f92aa3710dc99990",
+      "match": true
+    },
+    "csv/holding.csv": {
+      "run1_sha256": "a521ed2444d7140a95294fb82a322eb2bcd0827b7893c429426520c6ab2e8c40",
+      "run2_sha256": "a521ed2444d7140a95294fb82a322eb2bcd0827b7893c429426520c6ab2e8c40",
+      "match": true
+    },
+    "csv/instrument.csv": {
+      "run1_sha256": "1558ca75dc1e8ef187d9f7c9a697444495b84241e99a940660ea841f977c9fcc",
+      "run2_sha256": "1558ca75dc1e8ef187d9f7c9a697444495b84241e99a940660ea841f977c9fcc",
+      "match": true
+    },
+    "csv/investor_profile.csv": {
+      "run1_sha256": "1bcdda3ff86f25dda229fd62dd2f140af3ea16fc7129447aa1a6a00624d1dfdb",
+      "run2_sha256": "1bcdda3ff86f25dda229fd62dd2f140af3ea16fc7129447aa1a6a00624d1dfdb",
+      "match": true
+    },
+    "csv/market_price.csv": {
+      "run1_sha256": "f0ae0974a695857f631daf8c9bd49c2f3d271e2357d58060f521f953ace7b13b",
+      "run2_sha256": "f0ae0974a695857f631daf8c9bd49c2f3d271e2357d58060f521f953ace7b13b",
+      "match": true
+    },
+    "csv/portfolio.csv": {
+      "run1_sha256": "9a1ac6effc1ced3790f5bafdf5dd0f13dd22224b43db12beb00005bdb6a118f7",
+      "run2_sha256": "9a1ac6effc1ced3790f5bafdf5dd0f13dd22224b43db12beb00005bdb6a118f7",
+      "match": true
+    },
+    "csv/rebalance_proposal.csv": {
+      "run1_sha256": "f86e134da6d558635228c4722c936e0853152d55029c8036aeb590b89a069103",
+      "run2_sha256": "f86e134da6d558635228c4722c936e0853152d55029c8036aeb590b89a069103",
+      "match": true
+    },
+    "csv/target_allocation.csv": {
+      "run1_sha256": "620c2fc858ff89b6b764c2cce2ae9c0f2182474a4e8fa8bc8e12b06e50ca0938",
+      "run2_sha256": "620c2fc858ff89b6b764c2cce2ae9c0f2182474a4e8fa8bc8e12b06e50ca0938",
+      "match": true
+    },
+    "csv/trade.csv": {
+      "run1_sha256": "36b6b51087d8fc998273d8246a9ebbc5dba1bed2a45537bb620166c7c59c8400",
+      "run2_sha256": "36b6b51087d8fc998273d8246a9ebbc5dba1bed2a45537bb620166c7c59c8400",
+      "match": true
+    },
+    "json/constraint.json": {
+      "run1_sha256": "45397d31a115f2a1f55803847a47aa5685b2293ab1857622bad966075f17a360",
+      "run2_sha256": "45397d31a115f2a1f55803847a47aa5685b2293ab1857622bad966075f17a360",
+      "match": true
+    },
+    "json/constraint_instrument.json": {
+      "run1_sha256": "5bf146ab111c1e9562b9d5686dfcb93ed33a7d74b5cee214c571a13a7deca60f",
+      "run2_sha256": "5bf146ab111c1e9562b9d5686dfcb93ed33a7d74b5cee214c571a13a7deca60f",
+      "match": true
+    },
+    "json/fee_schedule.json": {
+      "run1_sha256": "d264ac7fdd00216f7409ef3a7275a9527336b6121b30d2fe9ec4479c9735be2e",
+      "run2_sha256": "d264ac7fdd00216f7409ef3a7275a9527336b6121b30d2fe9ec4479c9735be2e",
+      "match": true
+    },
+    "json/ground_truth.json": {
+      "run1_sha256": "b873a79ad9505a2a7833dbb0c09a6158ec89ccf0dc02d324103f47ab47b64d7e",
+      "run2_sha256": "b873a79ad9505a2a7833dbb0c09a6158ec89ccf0dc02d324103f47ab47b64d7e",
+      "match": true
+    },
+    "json/holding.json": {
+      "run1_sha256": "9abc8c691584541d09acb4c6ef1d171387351d9d9421e977a7484552e0016b41",
+      "run2_sha256": "9abc8c691584541d09acb4c6ef1d171387351d9d9421e977a7484552e0016b41",
+      "match": true
+    },
+    "json/instrument.json": {
+      "run1_sha256": "bcb44627f483c8e8e2ab27df7d74209017db893afb84c107115ee105d700a7a7",
+      "run2_sha256": "bcb44627f483c8e8e2ab27df7d74209017db893afb84c107115ee105d700a7a7",
+      "match": true
+    },
+    "json/investor_profile.json": {
+      "run1_sha256": "3dcdd19b471ce18caf2fcad9c1caded163783942cb72e4aa3ba3bb88a8b5cacb",
+      "run2_sha256": "3dcdd19b471ce18caf2fcad9c1caded163783942cb72e4aa3ba3bb88a8b5cacb",
+      "match": true
+    },
+    "json/market_price.json": {
+      "run1_sha256": "fde4b4372f1e92b984dc3e7b7d0c66c0edfccee753315295732cb7081c265abf",
+      "run2_sha256": "fde4b4372f1e92b984dc3e7b7d0c66c0edfccee753315295732cb7081c265abf",
+      "match": true
+    },
+    "json/portfolio.json": {
+      "run1_sha256": "7092201d07517504ea986541c83062c8c159af31659e58eb0fefd18972dc1f61",
+      "run2_sha256": "7092201d07517504ea986541c83062c8c159af31659e58eb0fefd18972dc1f61",
+      "match": true
+    },
+    "json/rebalance_proposal.json": {
+      "run1_sha256": "d428fa8dc5ea8dddb9633bd80e45ddeef705e55aa6045aea741be99bd17fb3b5",
+      "run2_sha256": "d428fa8dc5ea8dddb9633bd80e45ddeef705e55aa6045aea741be99bd17fb3b5",
+      "match": true
+    },
+    "json/target_allocation.json": {
+      "run1_sha256": "228ec15f5b99ecf06e0af6f623e589fee4f3b193806f3214619f18fd6a4733a6",
+      "run2_sha256": "228ec15f5b99ecf06e0af6f623e589fee4f3b193806f3214619f18fd6a4733a6",
+      "match": true
+    },
+    "json/trade.json": {
+      "run1_sha256": "ce6bbb8428e131ec9f459049b69ba851e6825022960aa72a5d5f54fbefdf41e0",
+      "run2_sha256": "ce6bbb8428e131ec9f459049b69ba851e6825022960aa72a5d5f54fbefdf41e0",
+      "match": true
+    },
+    "sql/seed_data.sql": {
+      "run1_sha256": "32b9d6ae48d77efc8b4e3c82c543c25813d9d05a055c5e5898fb016a32b11e9d",
+      "run2_sha256": "32b9d6ae48d77efc8b4e3c82c543c25813d9d05a055c5e5898fb016a32b11e9d",
+      "match": true
+    },
+    "validation_summary.json": {
+      "run1_sha256": "257da62d59a342602d3dc46f7f973d60fc240b9049b5b26385350fc71040aff5",
+      "run2_sha256": "257da62d59a342602d3dc46f7f973d60fc240b9049b5b26385350fc71040aff5",
+      "match": true
+    }
+  }
+}

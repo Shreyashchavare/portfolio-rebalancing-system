@@ -8,11 +8,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
+from app.models.portfolio import Portfolio
 from app.schemas.portfolio_analytics import (
     PortfolioDriftResult,
+    PortfolioListItem,
     PortfolioValuationResult,
 )
 from app.services.portfolio_analytics_service import (
+    InvalidTargetAllocationError,
     MissingPriceError,
     PortfolioAnalyticsService,
     PortfolioNotFoundError,
@@ -21,6 +24,30 @@ from app.services.portfolio_analytics_service import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/portfolios", tags=["Portfolio Analytics"])
+
+
+@router.get(
+    "",
+    response_model=list[PortfolioListItem],
+    status_code=status.HTTP_200_OK,
+    summary="List all portfolios",
+    description="Retrieve all available portfolios for analytics, drift surveillance, and rebalancing.",
+)
+def list_portfolios(
+    db: Session = Depends(get_db),
+) -> list[PortfolioListItem]:
+    """Retrieve all available portfolios."""
+    portfolios = db.query(Portfolio).order_by(Portfolio.portfolio_id).all()
+    return [
+        PortfolioListItem(
+            portfolio_id=p.portfolio_id,
+            investor_id=p.investor_id,
+            portfolio_name=p.portfolio_name,
+            base_currency=p.base_currency,
+            status=p.status.value if hasattr(p.status, "value") else str(p.status),
+        )
+        for p in portfolios
+    ]
 
 
 @router.get(
@@ -79,7 +106,7 @@ def get_portfolio_drift(
         return service.get_portfolio_drift(portfolio_id=portfolio_id, as_of_date=target_date)
     except PortfolioNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except MissingPriceError as exc:
+    except (MissingPriceError, InvalidTargetAllocationError, ValueError) as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
         ) from exc

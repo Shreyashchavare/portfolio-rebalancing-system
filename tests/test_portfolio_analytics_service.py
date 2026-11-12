@@ -544,3 +544,114 @@ def test_decimal_precision_preservation():
     assert isinstance(pos.market_value, Decimal)
     assert valuation.total_market_value == Decimal("1249.8016")
     assert isinstance(valuation.total_market_value, Decimal)
+
+
+# ==============================================================================
+# 14. Target Allocation Runtime Validation Tests
+# ==============================================================================
+
+def test_target_allocation_runtime_validation():
+    from app.services.portfolio_analytics_service import (
+        InvalidTargetAllocationError,
+        PortfolioAnalyticsService,
+    )
+
+    session = _create_sqlite_session()
+    _seed_base_data(session)
+    service = PortfolioAnalyticsService(session)
+    as_of = date(2026, 1, 15)
+
+    # 1. 100% allocation -> accepted
+    valid_targets = [
+        TargetAllocation(portfolio_id="PORT-001", asset_class="EQUITY", target_weight=Decimal("60.0000"), effective_from=as_of),
+        TargetAllocation(portfolio_id="PORT-001", asset_class="DEBT", target_weight=Decimal("40.0000"), effective_from=as_of),
+    ]
+    weights = service.validate_target_allocations("PORT-001", valid_targets)
+    assert sum(weights.values()) == Decimal("100.0000")
+
+    # 2. 105% allocation -> rejected
+    over_targets = [
+        TargetAllocation(portfolio_id="PORT-001", asset_class="EQUITY", target_weight=Decimal("65.0000"), effective_from=as_of),
+        TargetAllocation(portfolio_id="PORT-001", asset_class="DEBT", target_weight=Decimal("40.0000"), effective_from=as_of),
+    ]
+    with pytest.raises(InvalidTargetAllocationError) as exc_105:
+        service.validate_target_allocations("PORT-001", over_targets)
+    assert "sum to 100.0000%" in str(exc_105.value)
+    assert "105.0000%" in str(exc_105.value)
+
+    # 3. 95% allocation -> rejected
+    under_targets = [
+        TargetAllocation(portfolio_id="PORT-001", asset_class="EQUITY", target_weight=Decimal("55.0000"), effective_from=as_of),
+        TargetAllocation(portfolio_id="PORT-001", asset_class="DEBT", target_weight=Decimal("40.0000"), effective_from=as_of),
+    ]
+    with pytest.raises(InvalidTargetAllocationError) as exc_95:
+        service.validate_target_allocations("PORT-001", under_targets)
+    assert "sum to 100.0000%" in str(exc_95.value)
+    assert "95.0000%" in str(exc_95.value)
+
+    # 4. Negative allocation -> rejected
+    neg_targets = [
+        TargetAllocation(portfolio_id="PORT-001", asset_class="EQUITY", target_weight=Decimal("-10.0000"), effective_from=as_of),
+        TargetAllocation(portfolio_id="PORT-001", asset_class="DEBT", target_weight=Decimal("110.0000"), effective_from=as_of),
+    ]
+    with pytest.raises(InvalidTargetAllocationError) as exc_neg:
+        service.validate_target_allocations("PORT-001", neg_targets)
+    assert "cannot be negative" in str(exc_neg.value)
+
+    # 5. Duplicate asset-class allocation -> rejected
+    dupe_targets = [
+        TargetAllocation(portfolio_id="PORT-001", asset_class="EQUITY", target_weight=Decimal("50.0000"), effective_from=as_of),
+        TargetAllocation(portfolio_id="PORT-001", asset_class="EQUITY", target_weight=Decimal("50.0000"), effective_from=as_of),
+    ]
+    with pytest.raises(InvalidTargetAllocationError) as exc_dupe:
+        service.validate_target_allocations("PORT-001", dupe_targets)
+    assert "Duplicate target allocation" in str(exc_dupe.value)
+
+
+# ==============================================================================
+# 15. Stale Price Exact Date Pair Regression Tests
+# ==============================================================================
+
+def test_stale_price_exact_date_pair_calculations():
+    from app.services.portfolio_analytics_service import PortfolioAnalyticsService
+
+    session = _create_sqlite_session()
+    _seed_base_data(session)
+
+    # Price date is 2025-02-11 (authoritative market price date in database)
+    price_date = date(2025, 2, 11)
+    session.add_all([
+        MarketPrice(id=1, instrument_id="INS-AAPL", price=Decimal("150.0000"), price_date=price_date, source="SYNTHETIC"),
+        Holding(holding_id="H-01", portfolio_id="PORT-001", instrument_id="INS-AAPL", quantity=Decimal("10.0000"), as_of_date=date(2025, 1, 15)),
+        TargetAllocation(id=1, portfolio_id="PORT-001", asset_class="EQUITY", target_weight=Decimal("100.0000"), effective_from=date(2025, 1, 1)),
+    ])
+    session.commit()
+
+    service = PortfolioAnalyticsService(session)
+
+    # Test pair 1: Valuation on 2026-03-01 vs Market Price on 2025-02-11 -> Exactly 383 days
+    val_2026_03_01 = service.get_portfolio_valuation("PORT-001", as_of_date=date(2026, 3, 1))
+    pos1 = val_2026_03_01.positions[0]
+    expected_days_383 = (date(2026, 3, 1) - date(2025, 2, 11)).days
+    assert expected_days_383 == 383
+    assert pos1.price_age_days == 383
+    assert pos1.price_date == price_date
+    assert pos1.diagnostic is not None
+    assert "383 day(s) old relative to as-of date 2026-03-01" in pos1.diagnostic
+
+    # Test pair 2: Valuation on 2025-03-28 (45 days after latest price 2025-02-11) -> Exactly 45 days
+    val_2025_03_28 = service.get_portfolio_valuation("PORT-001", as_of_date=date(2025, 3, 28))
+    pos2 = val_2025_03_28.positions[0]
+    expected_days_45 = (date(2025, 3, 28) - date(2025, 2, 11)).days
+    assert expected_days_45 == 45
+    assert pos2.price_age_days == 45
+    assert pos2.price_date == price_date
+    assert "45 day(s) old relative to as-of date 2025-03-28" in pos2.diagnostic
+
+    # Test pair 3: Valuation on 2026-01-15 (holdings date) vs Market Price on 2025-02-11 -> Exactly 338 days
+    val_2026_01_15 = service.get_portfolio_valuation("PORT-001", as_of_date=date(2026, 1, 15))
+    pos3 = val_2026_01_15.positions[0]
+    expected_days_338 = (date(2026, 1, 15) - date(2025, 2, 11)).days
+    assert expected_days_338 == 338
+    assert pos3.price_age_days == 338
+    assert pos3.price_date == price_date

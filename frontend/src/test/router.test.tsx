@@ -56,13 +56,13 @@ function renderRoute(path: string) {
 describe('Navigation Router Routes', () => {
   it('renders DashboardPage at /dashboard', () => {
     renderRoute('/dashboard');
-    expect(screen.getByRole('heading', { level: 2, name: /Operations Dashboard/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /Risk & Compliance Review Desk/i })).toBeInTheDocument();
   });
 
   it('renders PortfoliosPage at /portfolios', () => {
     renderRoute('/portfolios');
     expect(screen.getByRole('heading', { level: 2, name: /Portfolio Management/i })).toBeInTheDocument();
-    expect(screen.getByText(/Asset Class Allocation & Drift Comparison/i)).toBeInTheDocument();
+    expect(screen.getByText(/LIVE FASTAPI VALUATION/i)).toBeInTheDocument();
   });
 
   it('renders RebalancingPage at /rebalancing', () => {

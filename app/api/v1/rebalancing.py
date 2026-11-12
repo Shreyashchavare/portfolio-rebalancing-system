@@ -13,6 +13,7 @@ from app.schemas.rebalancing import (
     RebalanceProposalResponse,
 )
 from app.services.portfolio_analytics_service import (
+    InvalidTargetAllocationError,
     MissingPriceError,
     PortfolioNotFoundError,
 )
@@ -57,7 +58,7 @@ def create_rebalance_proposal(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
         ) from exc
-    except (ConstraintViolationError, ValueError) as exc:
+    except (ConstraintViolationError, InvalidTargetAllocationError, ValueError) as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
         ) from exc

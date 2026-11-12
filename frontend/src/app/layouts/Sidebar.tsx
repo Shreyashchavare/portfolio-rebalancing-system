@@ -1,6 +1,7 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import type { NavItem } from '@/types/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import {
   LayoutDashboard,
   Briefcase,
@@ -13,17 +14,10 @@ import {
   ChevronRight,
   TrendingUp,
   X,
+  Compass,
+  History,
+  FileCheck,
 } from 'lucide-react';
-
-const NAVIGATION_ITEMS: NavItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Portfolios', href: '/portfolios', icon: Briefcase },
-  { name: 'Rebalancing', href: '/rebalancing', icon: Scale },
-  { name: 'Approvals', href: '/approvals', icon: ShieldCheck },
-  { name: 'Policy RAG', href: '/policies', icon: FileText },
-  { name: 'Workflows', href: '/workflows', icon: Workflow },
-  { name: 'Settings', href: '/settings', icon: Settings },
-];
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -38,6 +32,103 @@ export function Sidebar({
   isMobileOpen,
   onCloseMobile,
 }: SidebarProps) {
+  const { persona, reviewer } = useAuth();
+
+  // Role-tailored navigation items
+  const navItems: NavItem[] = (() => {
+    switch (persona) {
+      case 'CUSTOMER':
+        return [
+          { name: 'Overview', href: '/dashboard?tab=overview', icon: LayoutDashboard },
+          { name: 'My Portfolio', href: '/portfolios', icon: Briefcase },
+          { name: 'Recommendations', href: '/dashboard?tab=recommendations', icon: Scale },
+          { name: 'Activity', href: '/dashboard?tab=activity', icon: History },
+          { name: 'Settings', href: '/settings', icon: Settings },
+        ];
+      case 'ANALYST':
+        return [
+          { name: 'Dashboard', href: '/dashboard?tab=dashboard', icon: LayoutDashboard },
+          { name: 'Portfolios', href: '/portfolios', icon: Briefcase },
+          { name: 'Drift Analysis', href: '/dashboard?tab=drift', icon: Compass },
+          { name: 'Rebalancing Engine', href: '/rebalancing', icon: Scale },
+          { name: 'Workflows', href: '/workflows', icon: Workflow },
+          { name: 'Settings', href: '/settings', icon: Settings },
+        ];
+      case 'COMPLIANCE':
+        return [
+          { name: 'Review Queue', href: '/dashboard?tab=queue', icon: ShieldCheck },
+          { name: 'Proposal Details', href: '/dashboard?tab=details', icon: FileCheck },
+          { name: 'Policy Checks', href: '/policies', icon: FileText },
+          { name: 'Audit History', href: '/dashboard?tab=audit', icon: History },
+          { name: 'Settings', href: '/settings', icon: Settings },
+        ];
+      case 'ADMIN':
+      default:
+        return [
+          { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { name: 'Portfolios', href: '/portfolios', icon: Briefcase },
+          { name: 'Rebalancing', href: '/rebalancing', icon: Scale },
+          { name: 'Approvals', href: '/approvals', icon: ShieldCheck },
+          { name: 'Policies', href: '/policies', icon: FileText },
+          { name: 'Workflows', href: '/workflows', icon: Workflow },
+          { name: 'Settings', href: '/settings', icon: Settings },
+        ];
+    }
+  })();
+
+  const personaLabel =
+    persona === 'CUSTOMER'
+      ? 'Customer Portal'
+      : persona === 'ANALYST'
+      ? 'Analyst Desk'
+      : persona === 'COMPLIANCE'
+      ? 'Compliance Desk'
+      : 'Admin Console';
+
+  const location = useLocation();
+
+  const isItemActive = (item: NavItem): boolean => {
+    const [itemPath, itemQuery] = item.href.split('?');
+
+    // On /approvals page, Review Queue represents the review desk
+    if (location.pathname === '/approvals') {
+      return item.name === 'Review Queue';
+    }
+
+    if (location.pathname !== itemPath) {
+      return false;
+    }
+
+    if (itemQuery) {
+      const itemParams = new URLSearchParams(itemQuery);
+      const currentParams = new URLSearchParams(location.search);
+      const itemTab = itemParams.get('tab');
+      const currentTab = currentParams.get('tab');
+
+      if (currentTab) {
+        return currentTab === itemTab;
+      }
+
+      if (persona === 'CUSTOMER') {
+        return itemTab === 'overview';
+      }
+      if (persona === 'ANALYST') {
+        return itemTab === 'dashboard';
+      }
+      if (persona === 'COMPLIANCE') {
+        return itemTab === 'queue';
+      }
+
+      return false;
+    }
+
+    if (location.search && location.pathname === '/dashboard') {
+      return false;
+    }
+
+    return true;
+  };
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -92,59 +183,54 @@ export function Sidebar({
 
         {/* Navigation items */}
         <nav className="flex-1 space-y-1.5 px-3 py-4 overflow-y-auto" aria-label="Main Navigation">
-          {NAVIGATION_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
+            const active = isItemActive(item);
             return (
               <NavLink
-                key={item.href}
+                key={`${item.name}-${item.href}`}
                 to={item.href}
                 onClick={onCloseMobile}
-                className={({ isActive }) =>
-                  cn(
-                    'group flex items-center gap-3 rounded-md px-3 py-2.5 text-xs font-medium transition-colors relative select-none',
-                    isActive
-                      ? 'bg-brand-600 text-white shadow-sm'
-                      : 'text-slate-400 hover:bg-navy-900 dark:hover:bg-slate-800/80 hover:text-white',
-                    isCollapsed && 'justify-center px-0'
-                  )
-                }
+                className={cn(
+                  'group flex items-center gap-3 rounded-md px-3 py-2.5 text-xs font-medium transition-colors relative select-none',
+                  active
+                    ? 'bg-brand-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:bg-navy-900 dark:hover:bg-slate-800/80 hover:text-white',
+                  isCollapsed && 'justify-center px-0'
+                )}
                 title={isCollapsed ? item.name : undefined}
+                aria-current={active ? 'page' : undefined}
               >
-                {({ isActive }) => (
-                  <>
-                    <Icon
-                      className={cn(
-                        'h-4 w-4 shrink-0 transition-colors',
-                        isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
-                      )}
-                    />
-                    {!isCollapsed && (
-                      <span className="truncate tracking-wide">{item.name}</span>
-                    )}
-                    {item.badge && !isCollapsed && (
-                      <span className="ml-auto rounded bg-navy-800 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-300">
-                        {item.badge}
-                      </span>
-                    )}
-                  </>
+                <Icon
+                  className={cn(
+                    'h-4 w-4 shrink-0 transition-colors',
+                    active ? 'text-white' : 'text-slate-400 group-hover:text-white'
+                  )}
+                />
+                {!isCollapsed && (
+                  <span className="truncate tracking-wide">{item.name}</span>
+                )}
+                {item.badge && !isCollapsed && (
+                  <span className="ml-auto rounded bg-navy-800 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-300">
+                    {item.badge}
+                  </span>
                 )}
               </NavLink>
             );
           })}
         </nav>
 
-        {/* System architecture badge / footer */}
+        {/* User-facing Workstation info & collapse toggle */}
         <div className="border-t border-navy-900/80 dark:border-slate-800/60 p-3">
           {!isCollapsed && (
-            <div className="rounded bg-navy-900/60 dark:bg-slate-900/80 p-2.5 text-[11px] font-mono text-slate-400 border border-navy-800/40 dark:border-slate-800">
+            <div className="rounded bg-navy-900/60 dark:bg-slate-900/80 p-2.5 text-[11px] text-slate-400 border border-navy-800/40 dark:border-slate-800">
               <div className="flex items-center justify-between">
-                <span>Core Engine:</span>
-                <span className="text-emerald-400 font-semibold">Deterministic</span>
+                <span className="font-medium text-slate-300">{personaLabel}</span>
+                <span className="font-mono text-[10px] text-slate-500">v0.1.0</span>
               </div>
-              <div className="flex items-center justify-between mt-1">
-                <span>Policy RAG:</span>
-                <span className="text-blue-400 font-semibold">FastEmbed ONNX</span>
-              </div>
+              <p className="text-[10px] text-slate-500 mt-0.5">
+                Role: <span className="font-mono text-slate-400">{reviewer?.role || 'VIEWER'}</span>
+              </p>
             </div>
           )}
 

@@ -15,6 +15,8 @@ from app.schemas.approval import (
     ReviewerContext,
 )
 from app.schemas.audit import AuditEventResponse, AuditListResponse
+from app.schemas.rebalancing import RebalanceProposalResponse
+from app.services.rebalancing_service import RebalancingService
 from app.services.approval.approval_service import (
     ApprovalAuthorizationError,
     ApprovalService,
@@ -28,6 +30,45 @@ from app.services.audit.audit_service import AuditService
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/proposals", tags=["Proposal Governance & Audit"])
+
+
+@router.get(
+    "",
+    response_model=list[RebalanceProposalResponse],
+    status_code=status.HTTP_200_OK,
+    summary="List rebalancing proposals",
+    description="List rebalance proposals with optional portfolio and status filters.",
+)
+def list_proposals(
+    portfolio_id: Optional[str] = None,
+    status: Optional[str] = None,
+    db: Session = Depends(get_db),
+) -> list[RebalanceProposalResponse]:
+    """Retrieve list of rebalance proposals."""
+    rebalancing_service = RebalancingService(db)
+    return rebalancing_service.list_proposals(portfolio_id=portfolio_id, status=status)
+
+
+@router.get(
+    "/{proposal_id}",
+    response_model=RebalanceProposalResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get rebalancing proposal by ID",
+    description="Retrieve a proposal's details, proposed trades, simulation results, and gatekeeper findings.",
+)
+def get_proposal(
+    proposal_id: str,
+    db: Session = Depends(get_db),
+) -> RebalanceProposalResponse:
+    """Retrieve details of a single rebalancing proposal."""
+    rebalancing_service = RebalancingService(db)
+    prop = rebalancing_service.get_proposal_by_id(proposal_id)
+    if not prop:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Proposal '{proposal_id}' was not found.",
+        )
+    return prop
 
 
 @router.post(

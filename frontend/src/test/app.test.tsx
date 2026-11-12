@@ -8,6 +8,7 @@ describe('Application Root & Providers', () => {
     const brandElements = screen.getAllByText(/YOTTAFLEX/i);
     expect(brandElements.length).toBeGreaterThan(0);
     expect(brandElements[0]).toBeInTheDocument();
-    expect(screen.getByText(/Operations Dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText(/Rebalancing Core/i)).toBeInTheDocument();
+    expect(screen.getByText(/Financial Overview/i)).toBeInTheDocument();
   });
 });

@@ -273,6 +273,7 @@ def test_rebalance_trigger_triggered_when_configured_constraint_breached(client_
         MarketPrice(id=1, instrument_id="INS-AAPL", price=Decimal("100.0000"), price_date=as_of, source="TEST"),
         Holding(holding_id="H-01", portfolio_id="PORT-API-01", instrument_id="INS-AAPL", quantity=Decimal("10.0000"), as_of_date=as_of),
         TargetAllocation(id=1, portfolio_id="PORT-API-01", asset_class="EQUITY", target_weight=Decimal("40.0000"), effective_from=date(2026, 1, 1), effective_to=None),
+        TargetAllocation(id=2, portfolio_id="PORT-API-01", asset_class="CASH", target_weight=Decimal("60.0000"), effective_from=date(2026, 1, 1), effective_to=None),
         constraint,
     ])
     session.commit()

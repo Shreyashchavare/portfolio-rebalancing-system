@@ -7,6 +7,18 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class PortfolioListItem(BaseModel):
+    """Summary item for portfolio listing."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    portfolio_id: str
+    investor_id: str
+    portfolio_name: str
+    base_currency: str
+    status: str
+
+
 class PositionValuation(BaseModel):
     """Valuation details for a single portfolio holding position."""
 

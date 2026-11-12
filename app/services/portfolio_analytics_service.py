@@ -52,6 +52,21 @@ class MissingPriceError(Exception):
         self.as_of_date = as_of_date
 
 
+class InvalidTargetAllocationError(ValueError):
+    """Raised when portfolio target allocations fail runtime business validation."""
+
+    def __init__(
+        self,
+        portfolio_id: str,
+        message: str,
+        details: Optional[dict] = None,
+    ) -> None:
+        super().__init__(f"Invalid target allocation for portfolio {portfolio_id}: {message}")
+        self.portfolio_id = portfolio_id
+        self.message = message
+        self.details = details or {}
+
+
 class PortfolioAnalyticsService:
     """Production service for portfolio valuation, allocation analysis, and drift metrics."""
 
@@ -69,8 +84,76 @@ class PortfolioAnalyticsService:
             raise PortfolioNotFoundError(portfolio_id)
         return portfolio
 
+    def validate_target_allocations(
+        self, portfolio_id: str, targets: list[TargetAllocation]
+    ) -> dict[str, Decimal]:
+        """Shared runtime validation boundary for portfolio target allocations.
+
+        Enforces:
+        1. At least one target allocation must be configured.
+        2. No duplicate asset classes effective concurrently on the evaluation date.
+        3. All target weights must be non-negative (>= 0.0000%).
+        4. Target weights must sum to exactly 100.0000% (within 0.0001 precision).
+
+        Returns:
+            dict mapping asset_class to target_weight Decimal.
+        Raises:
+            InvalidTargetAllocationError on any validation violation.
+        """
+        if not targets:
+            raise InvalidTargetAllocationError(
+                portfolio_id=portfolio_id,
+                message="No active target allocations configured for portfolio",
+                details={"portfolio_id": portfolio_id, "error_code": "EMPTY_TARGET_ALLOCATIONS"},
+            )
+
+        seen_classes: set[str] = set()
+        weights: dict[str, Decimal] = {}
+        total_weight = Decimal("0.0000")
+
+        for t in targets:
+            if t.asset_class in seen_classes:
+                raise InvalidTargetAllocationError(
+                    portfolio_id=portfolio_id,
+                    message=f"Duplicate target allocation found for asset class '{t.asset_class}'",
+                    details={
+                        "portfolio_id": portfolio_id,
+                        "asset_class": t.asset_class,
+                        "error_code": "DUPLICATE_ASSET_CLASS",
+                    },
+                )
+            seen_classes.add(t.asset_class)
+
+            if t.target_weight < Decimal("0.0000"):
+                raise InvalidTargetAllocationError(
+                    portfolio_id=portfolio_id,
+                    message=f"Target weight for asset class '{t.asset_class}' cannot be negative ({t.target_weight}%)",
+                    details={
+                        "portfolio_id": portfolio_id,
+                        "asset_class": t.asset_class,
+                        "target_weight": str(t.target_weight),
+                        "error_code": "NEGATIVE_TARGET_WEIGHT",
+                    },
+                )
+
+            weights[t.asset_class] = t.target_weight
+            total_weight += t.target_weight
+
+        if total_weight != Decimal("100.0000"):
+            raise InvalidTargetAllocationError(
+                portfolio_id=portfolio_id,
+                message=f"Target allocation weights must sum to 100.0000% (current sum: {total_weight}%)",
+                details={
+                    "portfolio_id": portfolio_id,
+                    "total_weight": str(total_weight),
+                    "error_code": "ALLOCATION_SUM_MISMATCH",
+                },
+            )
+
+        return weights
+
     def _get_effective_targets(
-        self, portfolio_id: str, as_of_date: date
+        self, portfolio_id: str, as_of_date: date, validate: bool = True
     ) -> dict[str, Decimal]:
         """Fetch effective target allocations for a portfolio as of a given date."""
         targets = (
@@ -85,7 +168,9 @@ class PortfolioAnalyticsService:
             )
             .all()
         )
-        return {t.asset_class: t.target_weight for t in targets}
+        if not validate:
+            return {t.asset_class: t.target_weight for t in targets}
+        return self.validate_target_allocations(portfolio_id, targets)
 
     def get_portfolio_valuation(
         self, portfolio_id: str, as_of_date: date
@@ -188,7 +273,7 @@ class PortfolioAnalyticsService:
             asset_classes = []
         else:
             # Include asset classes from target allocations even if no holdings currently exist
-            targets = self._get_effective_targets(portfolio_id, as_of_date)
+            targets = self._get_effective_targets(portfolio_id, as_of_date, validate=False)
             all_classes = sorted(set(class_values.keys()).union(set(targets.keys())))
 
             weights: dict[str, Decimal] = {}

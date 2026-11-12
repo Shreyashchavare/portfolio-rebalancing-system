@@ -49,6 +49,9 @@ class DevMockAuthenticationVerifier(BaseAuthenticationVerifier):
             "dev-viewer-token": ReviewerContext(
                 reviewer_id="REV-DEV-VIEWER", role="VIEWER", email="dev.viewer@firm.com"
             ),
+            "dev-analyst-token": ReviewerContext(
+                reviewer_id="REV-DEV-ANALYST", role="PORTFOLIO_MANAGER", email="dev.analyst@firm.com"
+            ),
         }
 
     def verify_token(self, token: str) -> Optional[ReviewerContext]:

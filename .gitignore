@@ -262,3 +262,7 @@ working-notes/
 # Local Hugging Face model cache artifacts
 /CACHEDIR.TAG
 /models--Qdrant--bge-small-en-v1.5-onnx-Q/
+
+# Node dependencies and test caches
+/node_modules/
+**/node_modules/

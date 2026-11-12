@@ -4,9 +4,10 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { Modal } from '@/components/ui/Modal';
-import { DataTable, type Column } from '@/components/ui/DataTable';
 import { FinancialMetricCard } from '@/components/ui/FinancialMetricCard';
+import { ProposalAuditHistory } from '@/components/business/ProposalAuditHistory';
 import { useAuth } from '@/hooks/useAuth';
+import { useApproveProposal, useRejectProposal, useProposal } from '@/hooks/useApprovals';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -14,110 +15,111 @@ import {
   Clock,
   UserCheck,
   FileCheck2,
-  History,
-  Info,
+  RotateCw,
+  AlertTriangle,
 } from 'lucide-react';
 
-interface AuditItem {
-  eventId: string;
-  action: 'APPROVE' | 'REJECT' | 'PROPOSAL_GENERATED';
-  actorId: string;
-  role: string;
-  timestamp: string;
-  reason: string;
-}
-
-const SAMPLE_AUDIT_LOG: AuditItem[] = [
-  {
-    eventId: 'AUDIT-20260115-001',
-    action: 'APPROVE',
-    actorId: 'REV-DEV-01',
-    role: 'REVIEWER',
-    timestamp: '2026-01-15T10:30:00Z',
-    reason: 'Approved equity rebalancing to conform portfolio to IPS target corridor.',
-  },
-  {
-    eventId: 'AUDIT-20260114-002',
-    action: 'REJECT',
-    actorId: 'REV-DEV-ADMIN',
-    role: 'ADMIN',
-    timestamp: '2026-01-14T14:15:00Z',
-    reason: 'Market volatility warrants delaying trade execution until CPI print.',
-  },
-];
-
 export function ApprovalsPage() {
-  const { reviewer } = useAuth();
+  const { reviewer, canApprove } = useAuth();
+  const [proposalId, setProposalId] = useState('RB-2026-000004');
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
-  const [proposalStatus, setProposalStatus] = useState<'PENDING_REVIEW' | 'APPROVED' | 'REJECTED'>('PENDING_REVIEW');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [approvalNotes, setApprovalNotes] = useState('');
+  const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const isViewer = reviewer?.role === 'VIEWER';
 
-  const handleApprove = () => {
+  const { data: proposal, refetch: refetchProposal } = useProposal(proposalId);
+  const approveMutation = useApproveProposal();
+  const rejectMutation = useRejectProposal();
+
+  const proposalStatus = proposal?.status || 'PENDING_REVIEW';
+  const trades = proposal?.trades || [];
+  const totalNotional = trades.reduce((acc, t) => acc + parseFloat(t.trade_value || '0'), 0);
+  const hardBreaches = proposal?.constraint_findings?.filter((f) => f.is_violated && f.severity === 'HARD') || [];
+  const isBlockedByHardConstraint = hardBreaches.length > 0;
+
+  const handleApproveSubmit = async () => {
     if (isViewer) {
-      setErrorMessage('Access Denied: Callers with VIEWER role cannot approve proposals (HTTP 403 Forbidden).');
+      setFeedbackMessage({
+        type: 'error',
+        message: 'Access Denied: Callers with VIEWER role cannot approve proposals (HTTP 403 Forbidden).',
+      });
+      setIsApproveModalOpen(false);
       return;
     }
-    setProposalStatus('APPROVED');
-    setErrorMessage('');
+
+    if (isBlockedByHardConstraint) {
+      setFeedbackMessage({
+        type: 'error',
+        message: 'Action Blocked: Proposal violates one or more hard policy constraints and cannot be approved.',
+      });
+      setIsApproveModalOpen(false);
+      return;
+    }
+
+    try {
+      const response = await approveMutation.mutateAsync({
+        proposalId,
+        payload: { notes: approvalNotes.trim() || undefined },
+      });
+      refetchProposal();
+      setFeedbackMessage({
+        type: 'success',
+        message: `Proposal ${response.proposal_id} successfully APPROVED by ${response.reviewer_id} (Reviewed at ${new Date(response.reviewed_at).toLocaleTimeString()}). Trades staged for broker execution.`,
+      });
+      setIsApproveModalOpen(false);
+      setApprovalNotes('');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Approval failed';
+      setFeedbackMessage({
+        type: 'error',
+        message: `Approval failed: ${msg}`,
+      });
+      setIsApproveModalOpen(false);
+    }
   };
 
-  const handleRejectSubmit = () => {
+  const handleRejectSubmit = async () => {
     if (!rejectionReason.trim()) {
-      setErrorMessage('Validation Error: Rejection reason cannot be empty or whitespace.');
+      setFeedbackMessage({
+        type: 'error',
+        message: 'Validation Error: Rejection reason cannot be empty or whitespace.',
+      });
       return;
     }
+
     if (isViewer) {
-      setErrorMessage('Access Denied: Callers with VIEWER role cannot reject proposals (HTTP 403 Forbidden).');
+      setFeedbackMessage({
+        type: 'error',
+        message: 'Access Denied: Callers with VIEWER role cannot reject proposals (HTTP 403 Forbidden).',
+      });
       setIsRejectModalOpen(false);
       return;
     }
-    setProposalStatus('REJECTED');
-    setIsRejectModalOpen(false);
-    setErrorMessage('');
-  };
 
-  const auditColumns: Column<AuditItem>[] = [
-    {
-      key: 'eventId',
-      header: 'Audit Event ID',
-      render: (item) => <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">{item.eventId}</span>,
-    },
-    {
-      key: 'action',
-      header: 'Decision Action',
-      render: (item) => (
-        <Badge
-          variant={item.action === 'APPROVE' ? 'success' : item.action === 'REJECT' ? 'danger' : 'neutral'}
-          size="sm"
-        >
-          {item.action}
-        </Badge>
-      ),
-    },
-    {
-      key: 'actorId',
-      header: 'Reviewer Principal',
-      render: (item) => (
-        <div>
-          <span className="font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">{item.actorId}</span>
-          <span className="text-[10px] text-slate-400 block">{item.role}</span>
-        </div>
-      ),
-    },
-    {
-      key: 'timestamp',
-      header: 'Timestamp',
-      render: (item) => <span className="font-mono text-[11px] text-slate-500">{item.timestamp}</span>,
-    },
-    {
-      key: 'reason',
-      header: 'Mandatory Justification Reason',
-      render: (item) => <span className="text-xs text-slate-700 dark:text-slate-300">{item.reason}</span>,
-    },
-  ];
+    try {
+      const response = await rejectMutation.mutateAsync({
+        proposalId,
+        payload: { reason: rejectionReason.trim() },
+      });
+      refetchProposal();
+      setFeedbackMessage({
+        type: 'success',
+        message: `Proposal ${response.proposal_id} REJECTED by ${response.reviewer_id}. Reason recorded in immutable audit log.`,
+      });
+      setIsRejectModalOpen(false);
+      setRejectionReason('');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Rejection failed';
+      setFeedbackMessage({
+        type: 'error',
+        message: `Rejection failed: ${msg}`,
+      });
+      setIsRejectModalOpen(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -162,19 +164,53 @@ export function ApprovalsPage() {
         </Alert>
       )}
 
-      {/* Action Error Banner */}
-      {errorMessage && (
-        <Alert variant="error" title="Governance Action Blocked">
-          {errorMessage}
+      {/* Action Feedback Banner */}
+      {feedbackMessage && (
+        <Alert
+          variant={feedbackMessage.type === 'success' ? 'success' : 'error'}
+          title={feedbackMessage.type === 'success' ? 'Governance Action Completed' : 'Governance Action Blocked'}
+        >
+          {feedbackMessage.message}
         </Alert>
       )}
+
+      {/* Proposal ID Selector Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="flex items-center gap-2">
+          <FileCheck2 className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+          <label htmlFor="proposal-id-input" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Target Proposal ID:
+          </label>
+          <input
+            id="proposal-id-input"
+            type="text"
+            value={proposalId}
+            onChange={(e) => setProposalId(e.target.value)}
+            placeholder="e.g. RB-2026-000004"
+            className="font-mono text-xs px-2.5 py-1 rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-500 w-56"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              refetchProposal();
+              setFeedbackMessage(null);
+            }}
+            leftIcon={<RotateCw className="w-3 h-3" />}
+          >
+            Refresh Status
+          </Button>
+        </div>
+      </div>
 
       {/* Governance Decision Context Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <FinancialMetricCard
           title="Staged Proposal ID"
-          value="RB-20260115-000001"
-          badgeText="PORT-INV-000001-01"
+          value={proposalId}
+          badgeText="TARGET"
           badgeVariant="neutral"
           subtitle="Target date: 2026-01-15"
           icon={<FileCheck2 className="w-4 h-4 text-brand-600 dark:text-brand-400" />}
@@ -193,24 +229,31 @@ export function ApprovalsPage() {
 
         <FinancialMetricCard
           title="Total Rebalance Trades"
-          value="1 Trade"
-          badgeText="SELL AAPL &bull; 660 Lots"
+          value={`${trades.length} ${trades.length === 1 ? 'Trade' : 'Trades'}`}
+          badgeText={trades.length > 0 && trades[0] ? `${trades[0].trade_side} ${trades[0].symbol || trades[0].instrument_id}` : 'NO ORDERS'}
           badgeVariant="brand"
-          subtitle="Notional: $118,800.00"
+          subtitle={`Notional: $${totalNotional.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           icon={<Clock className="w-4 h-4 text-slate-600 dark:text-slate-400" />}
           accentBorder="neutral"
         />
 
         <FinancialMetricCard
           title="Hard Constraint Evaluation"
-          value="0 Breaches"
-          badgeText="CLEARED FOR APPROVAL"
-          badgeVariant="success"
-          subtitle="All mandates satisfied"
-          icon={<CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
-          accentBorder="success"
+          value={`${hardBreaches.length} ${hardBreaches.length === 1 ? 'Breach' : 'Breaches'}`}
+          badgeText={isBlockedByHardConstraint ? 'BLOCKED BY CONSTRAINTS' : 'CLEARED FOR APPROVAL'}
+          badgeVariant={isBlockedByHardConstraint ? 'danger' : 'success'}
+          subtitle={isBlockedByHardConstraint ? 'Hard policy violations detected' : 'All mandates satisfied'}
+          icon={isBlockedByHardConstraint ? <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" /> : <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+          accentBorder={isBlockedByHardConstraint ? 'danger' : 'success'}
         />
       </div>
+
+      {/* Constraint Violation Alert if Blocked */}
+      {isBlockedByHardConstraint && (
+        <Alert variant="error" title="Fiduciary Constraint Policy Violation Detected">
+          This proposal violates {hardBreaches.length} hard policy {hardBreaches.length === 1 ? 'mandate' : 'mandates'}. Under fiduciary governance rules, approval is strictly blocked until allocation or constraint parameters are rectified.
+        </Alert>
+      )}
 
       {/* Pending Proposal Review Card */}
       <Card>
@@ -230,6 +273,7 @@ export function ApprovalsPage() {
                   variant="danger"
                   size="sm"
                   onClick={() => setIsRejectModalOpen(true)}
+                  disabled={!canApprove}
                   leftIcon={<XCircle className="w-4 h-4" />}
                 >
                   Reject Proposal
@@ -237,7 +281,8 @@ export function ApprovalsPage() {
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={handleApprove}
+                  onClick={() => setIsApproveModalOpen(true)}
+                  disabled={!canApprove || isBlockedByHardConstraint}
                   leftIcon={<CheckCircle2 className="w-4 h-4" />}
                 >
                   Approve Proposal
@@ -247,91 +292,159 @@ export function ApprovalsPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">Trade Execution Detail</span>
-              <Badge variant="navy" size="sm">Single Trade Ticket</Badge>
+          {trades.length > 0 ? (
+            <div className="space-y-2">
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                Staged Proposed Orders ({trades.length}):
+              </span>
+              {trades.map((t) => (
+                <div
+                  key={t.trade_id}
+                  className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={t.trade_side === 'BUY' ? 'success' : 'danger'} size="sm">
+                        {t.trade_side}
+                      </Badge>
+                      <span className="text-xs font-mono font-bold text-slate-900 dark:text-slate-100">
+                        {t.symbol} &bull; {parseFloat(t.quantity).toFixed(4)} Lots @ ${parseFloat(t.unit_price).toFixed(2)}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block">
+                      {t.instrument_name} ({t.asset_class}) &bull; Notional: ${parseFloat(t.trade_value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant="brand" size="sm">
+                      FEE: ${parseFloat(t.fee_amount).toFixed(2)} ({t.fee_schedule_id || 'FEE-STD'})
+                    </Badge>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
-              <div>
-                <span className="text-slate-400 text-[10px] block">SECURITY</span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100">AAPL (Apple Inc.)</span>
-              </div>
-              <div>
-                <span className="text-slate-400 text-[10px] block">ACTION</span>
-                <span className="font-semibold text-rose-600 dark:text-rose-400">SELL 660 LOTS</span>
-              </div>
-              <div>
-                <span className="text-slate-400 text-[10px] block">NOTIONAL VALUE</span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100">$118,800.00</span>
-              </div>
-              <div>
-                <span className="text-slate-400 text-[10px] block">BROKER FEE</span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100">$125.00</span>
-              </div>
+          ) : (
+            <p className="text-xs text-slate-500 dark:text-slate-400 py-3 text-center">
+              No proposed trades staged for proposal {proposalId}.
+            </p>
+          )}
+
+          {/* Constraint Findings Summary */}
+          {proposal?.constraint_findings && proposal.constraint_findings.length > 0 && (
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                Gatekeeper Constraint Evaluations:
+              </span>
+              {proposal.constraint_findings.slice(0, 4).map((cf, i) => (
+                <div
+                  key={i}
+                  className={`p-2.5 rounded-lg border text-xs ${
+                    cf.is_violated
+                      ? cf.severity === 'HARD'
+                        ? 'border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200'
+                        : 'border-amber-200 dark:border-amber-900/60 bg-amber-50/50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">{cf.severity}: {cf.constraint_name}</span>
+                    <Badge variant={cf.is_violated ? (cf.severity === 'HARD' ? 'danger' : 'warning') : 'success'} size="sm">
+                      {cf.is_violated ? (cf.severity === 'HARD' ? 'VIOLATION' : 'WARNING') : 'PASSED'}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] mt-1 text-slate-600 dark:text-slate-400">{cf.message}</p>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Immutable Append-Only Audit Trail Table */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <History className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <div>
-                <CardTitle>Chronological Immutable Audit Log</CardTitle>
-                <CardDescription>
-                  Permanent append-only record from PostgreSQL audit_events (Zero update or delete operations permitted)
-                </CardDescription>
-              </div>
-            </div>
-            <Badge variant="success" size="sm">
-              Append-Only Guaranteed
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={auditColumns}
-            data={SAMPLE_AUDIT_LOG}
-            keyExtractor={(item) => item.eventId}
-          />
-        </CardContent>
-      </Card>
+      {/* Proposal Audit Trail Card */}
+      <ProposalAuditHistory proposalId={proposalId} />
 
-      {/* Mandatory Rejection Modal */}
+      {/* Approve Modal */}
+      <Modal
+        isOpen={isApproveModalOpen}
+        onClose={() => setIsApproveModalOpen(false)}
+        title="Confirm Proposal Approval"
+        description={`Authorizing proposal ${proposalId} will stage recommended trades for external execution.`}
+      >
+        <div className="space-y-4 pt-2">
+          <Alert variant="warning" title="Authoritative Signoff Required">
+            You are signing off on this proposal as <strong>{reviewer?.reviewer_id}</strong> ({reviewer?.role}). This action is recorded atomically in the audit log.
+          </Alert>
+
+          <div>
+            <label htmlFor="approval-notes" className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+              Approval Notes (Optional):
+            </label>
+            <textarea
+              id="approval-notes"
+              value={approvalNotes}
+              onChange={(e) => setApprovalNotes(e.target.value)}
+              placeholder="e.g. Approved equity rebalancing to conform portfolio to IPS target corridor."
+              rows={3}
+              className="w-full text-xs p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <Button variant="outline" size="sm" onClick={() => setIsApproveModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleApproveSubmit}
+              isLoading={approveMutation.isPending}
+              leftIcon={<CheckCircle2 className="w-4 h-4" />}
+            >
+              Sign &amp; Approve
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Reject Modal */}
       <Modal
         isOpen={isRejectModalOpen}
         onClose={() => setIsRejectModalOpen(false)}
-        title="Reject Rebalance Proposal"
-        description="The backend requires a non-empty business justification reason to permanently reject a proposal."
-        footer={
-          <>
-            <Button variant="ghost" size="sm" onClick={() => setIsRejectModalOpen(false)}>
+        title="Confirm Proposal Rejection"
+        description={`Rejecting proposal ${proposalId} marks it as permanently terminal.`}
+      >
+        <div className="space-y-4 pt-2">
+          <Alert variant="error" title="Mandatory Rejection Justification">
+            Financial regulations require a non-empty audit justification reason for all rejected rebalancing proposals.
+          </Alert>
+
+          <div>
+            <label htmlFor="rejection-reason" className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+              Justification Reason <span className="text-rose-500">*</span>:
+            </label>
+            <textarea
+              id="rejection-reason"
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="e.g. Market volatility warrants delaying trade execution until after the CPI release."
+              rows={3}
+              className="w-full text-xs p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-rose-500"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <Button variant="outline" size="sm" onClick={() => setIsRejectModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="danger" size="sm" onClick={handleRejectSubmit}>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleRejectSubmit}
+              isLoading={rejectMutation.isPending}
+              leftIcon={<XCircle className="w-4 h-4" />}
+            >
               Confirm Rejection
             </Button>
-          </>
-        }
-      >
-        <div className="space-y-3">
-          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
-            Mandatory Rejection Reason <span className="text-rose-500">*</span>
-          </label>
-          <textarea
-            rows={3}
-            value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
-            placeholder="e.g. Market volatility warrants pausing equity sales today..."
-            className="w-full p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
-          />
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-            <Info className="w-3.5 h-3.5 text-slate-400" />
-            <span>This reason will be recorded immutably in the audit trail.</span>
           </div>
         </div>
       </Modal>

@@ -1,16 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { StatusBanner } from '@/components/feedback/StatusBanner';
 import { ThemeSelector } from '@/components/ui/ThemeSelector';
 import { Badge } from '@/components/ui/Badge';
-import { DEV_MOCK_TOKENS } from '@/types/auth';
+import { DEV_MOCK_TOKENS, type BusinessPersona } from '@/types/auth';
 import {
   Menu,
   UserCheck,
   ChevronDown,
-  Shield,
-  Eye,
+  Settings,
+  Terminal,
+  Sliders,
   Check,
 } from 'lucide-react';
 
@@ -21,14 +22,14 @@ interface HeaderProps {
 const ROUTE_TITLES: Record<string, { title: string; subtitle: string }> = {
   '/dashboard': {
     title: 'Financial Overview',
-    subtitle: 'Executive operations & rebalancing monitoring',
+    subtitle: 'Portfolio health, allocation surveillance & governance',
   },
   '/portfolios': {
     title: 'Portfolio Management',
     subtitle: 'Multi-asset valuation, positions & target drift',
   },
   '/rebalancing': {
-    title: 'Rebalancing Engine',
+    title: 'Rebalancing Recommendations',
     subtitle: 'Deterministic trade proposals & constraint simulation',
   },
   '/approvals': {
@@ -41,17 +42,17 @@ const ROUTE_TITLES: Record<string, { title: string; subtitle: string }> = {
   },
   '/workflows': {
     title: 'Workflow Orchestration',
-    subtitle: 'Agentic state machine lifecycle tracking',
+    subtitle: 'Lifecycle transition & state tracking',
   },
   '/settings': {
     title: 'System Settings',
-    subtitle: 'Appearance, API gateway & reviewer identity configuration',
+    subtitle: 'Appearance, display density & reviewer identity configuration',
   },
 };
 
 export function Header({ onOpenMobile }: HeaderProps) {
   const location = useLocation();
-  const { reviewer, activeMockToken, selectMockToken, isDevelopment } = useAuth();
+  const { reviewer, persona, setPersona, isDevelopment } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -70,20 +71,28 @@ export function Header({ onOpenMobile }: HeaderProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const getRoleBadgeVariant = (role?: string) => {
-    switch (role) {
+  const getPersonaBadgeVariant = (p?: BusinessPersona) => {
+    switch (p) {
       case 'ADMIN':
         return 'danger';
-      case 'PORTFOLIO_MANAGER':
-      case 'COMPLIANCE_OFFICER':
-      case 'REVIEWER':
+      case 'COMPLIANCE':
         return 'brand';
-      case 'VIEWER':
-        return 'neutral';
+      case 'ANALYST':
+        return 'navy';
+      case 'CUSTOMER':
       default:
         return 'neutral';
     }
   };
+
+  const personaLabel =
+    persona === 'CUSTOMER'
+      ? 'Customer'
+      : persona === 'ANALYST'
+      ? 'Operations Analyst'
+      : persona === 'COMPLIANCE'
+      ? 'Compliance Reviewer'
+      : 'System Admin';
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 px-4 sm:px-6 backdrop-blur transition-colors duration-200">
@@ -130,76 +139,101 @@ export function Header({ onOpenMobile }: HeaderProps) {
             </div>
             <div className="text-left hidden md:block">
               <div className="text-[11px] font-semibold text-slate-900 dark:text-slate-100 leading-none">
-                {reviewer?.reviewer_id || 'Unauthenticated'}
+                {reviewer?.reviewer_id || 'REV-DEV-01'}
+              </div>
+              <div className="text-[9px] text-slate-500 font-mono mt-0.5">
+                {personaLabel}
               </div>
             </div>
             <Badge
-              variant={getRoleBadgeVariant(reviewer?.role)}
+              variant={getPersonaBadgeVariant(persona)}
               size="sm"
               className="font-mono text-[10px]"
             >
-              {reviewer?.role || 'ANONYMOUS'}
+              {reviewer?.role || 'REVIEWER'}
             </Badge>
-            {isDevelopment && <ChevronDown className="h-3 w-3 text-slate-400 dark:text-slate-500" />}
+            <ChevronDown className="h-3 w-3 text-slate-400 dark:text-slate-500" />
           </button>
 
-          {/* Dev Mock Token Switcher Dropdown */}
-          {isDevelopment && isDropdownOpen && (
+          {/* User Account Menu Dropdown */}
+          {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-72 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50">
-              <div className="px-2 py-1.5 border-b border-slate-100 dark:border-slate-700/60">
+              <div className="px-2 py-2 border-b border-slate-100 dark:border-slate-700/60">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                  Dev Reviewer Identity (RBAC)
+                  Active Persona &amp; Role
                 </span>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                  Switches the mock bearer token sent to governance endpoints.
-                </p>
+                <div className="font-semibold text-slate-900 dark:text-slate-100 text-xs mt-0.5">
+                  {reviewer?.reviewer_id || 'User'} &bull; Role: {reviewer?.role || 'VIEWER'}
+                </div>
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                  {reviewer?.email}
+                </div>
               </div>
 
-              <div className="mt-1 space-y-1">
-                {DEV_MOCK_TOKENS.map((item) => {
-                  const isSelected = activeMockToken?.token === item.token;
-                  return (
-                    <button
-                      key={item.token}
-                      type="button"
-                      onClick={() => {
-                        selectMockToken(item.token);
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full flex items-start gap-2.5 rounded p-2 text-left text-xs transition-colors ${
-                        isSelected
-                          ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 font-medium'
-                          : 'hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200'
-                      }`}
-                    >
-                      <div className="mt-0.5 shrink-0">
-                        {item.role === 'ADMIN' ? (
-                          <Shield className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-                        ) : item.role === 'VIEWER' ? (
-                          <Eye className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                        ) : (
-                          <UserCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-slate-900 dark:text-slate-100 text-xs">
-                            {item.reviewerId}
-                          </span>
-                          <Badge variant={getRoleBadgeVariant(item.role)} size="sm">
-                            {item.role}
-                          </Badge>
-                        </div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-                          {item.description}
-                        </p>
-                      </div>
-                      {isSelected && (
-                        <Check className="w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0 self-center" />
-                      )}
-                    </button>
-                  );
-                })}
+              {/* Dev Persona Switcher in dropdown */}
+              {isDevelopment && (
+                <div className="py-2 border-b border-slate-100 dark:border-slate-700/60">
+                  <div className="flex items-center justify-between px-2 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                    <div className="flex items-center gap-1.5">
+                      <Sliders className="w-3 h-3" />
+                      <span>Switch Role Persona</span>
+                    </div>
+                    <span className="text-[9px] font-mono px-1 py-0.2 bg-indigo-100 dark:bg-indigo-950/80 rounded border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300">
+                      DEV ONLY
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    {DEV_MOCK_TOKENS.map((mock) => {
+                      const isSelected = persona === mock.persona;
+                      return (
+                        <button
+                          key={mock.persona}
+                          type="button"
+                          onClick={() => {
+                            setPersona(mock.persona);
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded text-xs text-left transition-colors ${
+                            isSelected
+                              ? 'bg-indigo-50 dark:bg-indigo-950/60 font-semibold text-indigo-900 dark:text-indigo-200'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                          }`}
+                        >
+                          <div>
+                            <div className="text-xs">{mock.label}</div>
+                            <div className="text-[10px] text-slate-400 font-mono">{mock.role}</div>
+                          </div>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-1 space-y-0.5">
+                <Link
+                  to="/settings"
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="w-full flex items-center gap-2 rounded px-2.5 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors"
+                >
+                  <Settings className="w-4 h-4 text-slate-400" />
+                  <span>Account Settings</span>
+                </Link>
+
+                {(isDevelopment || reviewer?.role === 'ADMIN') && (
+                  <Link
+                    to="/settings"
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="w-full flex items-center gap-2 rounded px-2.5 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors"
+                  >
+                    <Terminal className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                    <span>System Diagnostics</span>
+                    <Badge variant="brand" size="sm" className="ml-auto text-[9px]">
+                      ADMIN
+                    </Badge>
+                  </Link>
+                )}
               </div>
             </div>
           )}

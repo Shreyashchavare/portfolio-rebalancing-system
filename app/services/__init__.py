@@ -43,17 +43,23 @@ from app.services.portfolio_analytics_service import (
     PortfolioAnalyticsService,
     PortfolioNotFoundError,
 )
-from app.services.rebalancing_service import (
+from app.services.rebalancing import (
+    ConstraintEvaluator,
     ConstraintViolationError,
     RebalancingService,
+    TradeGenerator,
+    TradeSimulator,
 )
 
 __all__ = [
+    "ConstraintEvaluator",
     "ConstraintViolationError",
     "MissingPriceError",
     "PortfolioAnalyticsService",
     "PortfolioNotFoundError",
     "RebalancingService",
+    "TradeGenerator",
+    "TradeSimulator",
     "DocumentExtractor",
     "TextChunker",
     "BaseEmbeddingService",

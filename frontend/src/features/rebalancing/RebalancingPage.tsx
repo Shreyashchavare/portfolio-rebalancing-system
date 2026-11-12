@@ -5,6 +5,11 @@ import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { FinancialMetricCard } from '@/components/ui/FinancialMetricCard';
+import { SEEDED_PORTFOLIO_REFERENCES } from '@/features/portfolios/types/portfolio';
+import { usePortfolioValuation } from '@/features/portfolios/hooks/usePortfolioValuation';
+import { usePortfolioDrift } from '@/features/portfolios/hooks/usePortfolioDrift';
+import { useCreateProposal } from '@/hooks/useRebalancing';
+import type { RebalanceProposalResponse, TradeResponse } from '@/types/rebalancing';
 import {
   Scale,
   DollarSign,
@@ -14,10 +19,12 @@ import {
   RotateCcw,
   ArrowRight,
   Lock,
+  Briefcase,
+  Layers,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-interface ProposedTrade {
+interface DisplayTrade {
   tradeId: string;
   side: 'BUY' | 'SELL';
   symbol: string;
@@ -28,29 +35,59 @@ interface ProposedTrade {
   tradeValue: string;
   feeAmount: string;
   feeScheduleId: string;
-  status: 'PROPOSED';
+  status: string;
 }
 
-const SAMPLE_PROPOSED_TRADES: ProposedTrade[] = [
-  {
-    tradeId: 'TRD-20260115-0001',
-    side: 'SELL',
-    symbol: 'AAPL',
-    name: 'Apple Inc.',
-    assetClass: 'EQUITY',
-    quantity: '660.0000',
-    unitPrice: '$180.0000',
-    tradeValue: '$118,800.0000',
-    feeAmount: '$125.0000',
-    feeScheduleId: 'FEE-USD-EQ-B1',
-    status: 'PROPOSED',
-  },
-];
+const DEFAULT_AS_OF_DATE = '2026-01-15';
 
 export function RebalancingPage() {
-  const [selectedPortfolio] = useState('PORT-INV-000001-01');
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState('PORT-INV-000001-02');
+  const [activeProposal, setActiveProposal] = useState<RebalanceProposalResponse | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const columns: Column<ProposedTrade>[] = [
+  const { data: valuation, isLoading: isValLoading, refetch: refetchVal } = usePortfolioValuation(selectedPortfolioId, DEFAULT_AS_OF_DATE);
+  const { data: drift, refetch: refetchDrift } = usePortfolioDrift(selectedPortfolioId, DEFAULT_AS_OF_DATE);
+  const createProposalMutation = useCreateProposal();
+
+  const handleRunOptimization = async () => {
+    setActionError(null);
+    try {
+      const result = await createProposalMutation.mutateAsync({
+        portfolioId: selectedPortfolioId,
+        asOfDate: DEFAULT_AS_OF_DATE,
+      });
+      setActiveProposal(result);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to generate proposal';
+      setActionError(msg);
+    }
+  };
+
+  const handleResetSimulation = () => {
+    setActiveProposal(null);
+    setActionError(null);
+    refetchVal();
+    refetchDrift();
+  };
+
+  // Convert proposal trades to table rows
+  const displayTrades: DisplayTrade[] = activeProposal
+    ? activeProposal.trades.map((t: TradeResponse) => ({
+        tradeId: t.trade_id,
+        side: (t.trade_side === 'BUY' ? 'BUY' : 'SELL') as 'BUY' | 'SELL',
+        symbol: t.symbol || t.instrument_id,
+        name: t.instrument_name || t.instrument_id,
+        assetClass: t.asset_class,
+        quantity: parseFloat(t.quantity).toFixed(4),
+        unitPrice: `$${parseFloat(t.unit_price).toFixed(2)}`,
+        tradeValue: `$${parseFloat(t.trade_value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        feeAmount: `$${parseFloat(t.fee_amount).toFixed(2)}`,
+        feeScheduleId: t.fee_schedule_id || 'FEE-STD',
+        status: t.status,
+      }))
+    : [];
+
+  const columns: Column<DisplayTrade>[] = [
     {
       key: 'side',
       header: 'Side',
@@ -120,6 +157,33 @@ export function RebalancingPage() {
     },
   ];
 
+  // Derived metric values
+  const preValue = activeProposal
+    ? parseFloat(activeProposal.pre_trade_portfolio_value)
+    : parseFloat(valuation?.total_market_value || '0');
+
+  const postValue = activeProposal
+    ? parseFloat(activeProposal.post_trade_portfolio_value)
+    : parseFloat(valuation?.total_market_value || '0');
+
+  const postCash = activeProposal?.simulation
+    ? parseFloat(activeProposal.simulation.post_trade_cash)
+    : parseFloat(
+        valuation?.asset_classes?.find((a) => a.asset_class.toUpperCase() === 'CASH')
+          ?.market_value || '0'
+      );
+
+  const totalFees = activeProposal?.simulation
+    ? parseFloat(activeProposal.simulation.total_executable_fees)
+    : 0;
+
+  const isTriggered = drift?.rebalance_trigger?.rebalance_required || drift?.rebalance_trigger?.status === 'TRIGGERED';
+
+  const cashAsset = valuation?.asset_classes?.find(
+    (a) => a.asset_class.toUpperCase() === 'CASH'
+  );
+  const preCashVal = cashAsset ? parseFloat(cashAsset.market_value) : 0;
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -129,8 +193,8 @@ export function RebalancingPage() {
             <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
               Rebalancing Engine &amp; Decision Workspace
             </h2>
-            <Badge variant="brand" size="sm">
-              DETERMINISTIC STAGING
+            <Badge variant={activeProposal ? 'success' : 'brand'} size="sm">
+              {activeProposal ? 'LIVE PROPOSAL STAGED' : 'DETERMINISTIC STAGING'}
             </Badge>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -138,11 +202,42 @@ export function RebalancingPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" leftIcon={<RotateCcw className="w-3.5 h-3.5" />}>
-            Reset Simulation
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Portfolio selection quick-switch */}
+          <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs">
+            <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+            <select
+              value={selectedPortfolioId}
+              onChange={(e) => {
+                setSelectedPortfolioId(e.target.value);
+                setActiveProposal(null);
+              }}
+              className="bg-transparent border-none text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
+            >
+              {SEEDED_PORTFOLIO_REFERENCES.map((p) => (
+                <option key={p.portfolio_id} value={p.portfolio_id} className="dark:bg-slate-900">
+                  {p.portfolio_id} ({p.portfolio_name})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleResetSimulation}
+            leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+          >
+            Reset
           </Button>
-          <Button variant="primary" size="sm" leftIcon={<Play className="w-3.5 h-3.5" />}>
+
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleRunOptimization}
+            isLoading={createProposalMutation.isPending || isValLoading}
+            leftIcon={<Play className="w-3.5 h-3.5" />}
+          >
             Run Optimization
           </Button>
         </div>
@@ -153,22 +248,36 @@ export function RebalancingPage() {
         Recommendations generated by this engine are strictly non-mutating in-memory proposals. Real portfolio holdings are never modified. Downstream approval via authenticated reviewer credentials is required before any execution ticket is published.
       </Alert>
 
+      {/* Action Error if Mutation Fails */}
+      {actionError && (
+        <Alert variant="error" title="Rebalancing Optimization Error">
+          {actionError}
+        </Alert>
+      )}
+
+      {/* Trigger Warning if Portfolio Needs Rebalance */}
+      {!activeProposal && isTriggered && (
+        <Alert variant="warning" title="Allocation Drift Detected &mdash; Rebalancing Triggered">
+          Portfolio {selectedPortfolioId} has breached its target corridor thresholds. Click <strong>Run Optimization</strong> to generate lot-sized trade recommendations and simulate post-trade cash solvency.
+        </Alert>
+      )}
+
       {/* Decision Context Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <FinancialMetricCard
           title="Pre-Trade Portfolio Value"
-          value="$1,050,000.00"
-          badgeText={selectedPortfolio}
+          value={`$${preValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          badgeText={selectedPortfolioId}
           badgeVariant="neutral"
-          subtitle="Valuation as-of 2026-01-15"
+          subtitle={`Valuation as-of ${valuation?.as_of_date || '2026-01-15'}`}
           icon={<DollarSign className="w-4 h-4 text-brand-600 dark:text-brand-400" />}
           accentBorder="brand"
         />
 
         <FinancialMetricCard
           title="Post-Trade Simulated Value"
-          value="$1,049,875.00"
-          badgeText="Fee Deducted (-$125)"
+          value={`$${postValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          badgeText={`Fee Deducted (-$${totalFees.toFixed(2)})`}
           badgeVariant="neutral"
           subtitle="Tiered broker fee subtracted"
           icon={<Scale className="w-4 h-4 text-slate-600 dark:text-slate-400" />}
@@ -177,18 +286,18 @@ export function RebalancingPage() {
 
         <FinancialMetricCard
           title="Post-Trade Cash Balance"
-          value="$418,675.00"
+          value={`$${postCash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           badgeText="SOLVENT &bull; NO OVERDRAFT"
           badgeVariant="success"
-          subtitle="Pre-trade cash: $300,000"
+          subtitle={`Pre-trade cash: $${preCashVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           icon={<CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
           accentBorder="success"
         />
 
         <FinancialMetricCard
           title="Human Review Boundary"
-          value="PENDING REVIEW"
-          badgeText="AWAITING GOVERNANCE"
+          value={activeProposal ? activeProposal.status : 'PENDING REVIEW'}
+          badgeText={activeProposal ? activeProposal.proposal_id : 'AWAITING GOVERNANCE'}
           badgeVariant="warning"
           subtitle="Mandatory signoff gate"
           icon={<Lock className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
@@ -210,14 +319,14 @@ export function RebalancingPage() {
                   </CardDescription>
                 </div>
                 <Badge variant="navy" size="sm">
-                  1 Proposed Trade
+                  {displayTrades.length} Proposed {displayTrades.length === 1 ? 'Trade' : 'Trades'}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
               <DataTable
                 columns={columns}
-                data={SAMPLE_PROPOSED_TRADES}
+                data={displayTrades}
                 keyExtractor={(item) => item.tradeId}
               />
             </CardContent>
@@ -226,37 +335,70 @@ export function RebalancingPage() {
           {/* Post-Trade Simulation Residual Drift */}
           <Card>
             <CardHeader>
-              <CardTitle>Post-Trade Residual Drift Simulation</CardTitle>
-              <CardDescription>
-                Asset weight realignment after executing proposed trade ticket
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Post-Trade Residual Drift Simulation</CardTitle>
+                  <CardDescription>
+                    Asset weight realignment after executing proposed trade ticket in simulation
+                  </CardDescription>
+                </div>
+                <Layers className="w-4 h-4 text-slate-400" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex items-center justify-between text-xs font-semibold mb-1">
-                    <span className="text-slate-700 dark:text-slate-300">Equity Asset Weight</span>
-                    <span className="font-mono text-emerald-600 dark:text-emerald-400">
-                      71.43% &rarr; 60.11% (Residual: +0.11%)
-                    </span>
-                  </div>
-                  <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex">
-                    <div className="bg-brand-600 w-[60.11%]" />
-                  </div>
-                </div>
+              {activeProposal?.simulation?.asset_classes && activeProposal.simulation.asset_classes.length > 0 ? (
+                <div className="space-y-4">
+                  {activeProposal.simulation.asset_classes.map((ac) => {
+                    const postWeight = parseFloat(ac.post_trade_weight || '0');
+                    const targetWeight = parseFloat(ac.target_weight || '0');
+                    const driftVal = parseFloat(ac.post_trade_drift || '0');
+                    const isBalanced = Math.abs(driftVal) <= 0.05;
 
-                <div>
-                  <div className="flex items-center justify-between text-xs font-semibold mb-1">
-                    <span className="text-slate-700 dark:text-slate-300">Cash Asset Weight</span>
-                    <span className="font-mono text-emerald-600 dark:text-emerald-400">
-                      28.57% &rarr; 39.89% (Residual: -0.11%)
-                    </span>
+                    return (
+                      <div key={ac.asset_class}>
+                        <div className="flex items-center justify-between text-xs font-semibold mb-1">
+                          <span className="text-slate-700 dark:text-slate-300 capitalize">{ac.asset_class}</span>
+                          <span className={`font-mono ${isBalanced ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                            Post-Trade: {postWeight.toFixed(2)}% | Target: {targetWeight.toFixed(2)}% | Residual Drift: {driftVal >= 0 ? '+' : ''}{driftVal.toFixed(2)}%
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex">
+                          <div
+                            className={ac.asset_class === 'EQUITY' ? 'bg-brand-600' : ac.asset_class === 'FIXED_INCOME' ? 'bg-emerald-600' : ac.asset_class === 'DEBT' ? 'bg-blue-600' : 'bg-amber-500'}
+                            style={{ width: `${Math.min(100, Math.max(5, postWeight))}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-xs font-semibold mb-1">
+                      <span className="text-slate-700 dark:text-slate-300">Equity Asset Weight</span>
+                      <span className="font-mono text-emerald-600 dark:text-emerald-400">
+                        71.43% &rarr; 60.11% (Residual: +0.11%)
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex">
+                      <div className="bg-brand-600 w-[60.11%]" />
+                    </div>
                   </div>
-                  <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex">
-                    <div className="bg-emerald-600 w-[39.89%]" />
+
+                  <div>
+                    <div className="flex items-center justify-between text-xs font-semibold mb-1">
+                      <span className="text-slate-700 dark:text-slate-300">Cash Asset Weight</span>
+                      <span className="font-mono text-emerald-600 dark:text-emerald-400">
+                        28.57% &rarr; 39.89% (Residual: -0.11%)
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex">
+                      <div className="bg-emerald-600 w-[39.89%]" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -274,41 +416,75 @@ export function RebalancingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/30">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">
-                    HARD: ESG Exclusion List
-                  </span>
-                  <Badge variant="success" size="sm">PASSED</Badge>
-                </div>
-                <p className="text-[11px] text-emerald-700 dark:text-emerald-300 mt-1">
-                  Zero proposed instruments are barred by active ESG exclusion mandates.
-                </p>
-              </div>
+              {activeProposal?.constraint_findings && activeProposal.constraint_findings.length > 0 ? (
+                activeProposal.constraint_findings.map((cf, idx) => {
+                  const isHard = cf.severity === 'HARD';
+                  const isViolated = cf.is_violated;
 
-              <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/30">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">
-                    HARD: Cash Overdraft Protection
-                  </span>
-                  <Badge variant="success" size="sm">SOLVENT</Badge>
-                </div>
-                <p className="text-[11px] text-emerald-700 dark:text-emerald-300 mt-1">
-                  Post-trade cash balance ($418,675) strictly exceeds minimum 5% liquidity reserve.
-                </p>
-              </div>
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded-lg border ${
+                        isViolated
+                          ? isHard
+                            ? 'border-rose-200 dark:border-rose-800/60 bg-rose-50/50 dark:bg-rose-950/30'
+                            : 'border-amber-200 dark:border-amber-800/60 bg-amber-50/50 dark:bg-amber-950/30'
+                          : 'border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/30'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs font-semibold ${isViolated ? (isHard ? 'text-rose-900 dark:text-rose-200' : 'text-amber-900 dark:text-amber-200') : 'text-emerald-900 dark:text-emerald-200'}`}>
+                          {cf.severity}: {cf.constraint_name}
+                        </span>
+                        <Badge variant={isViolated ? (isHard ? 'danger' : 'warning') : 'success'} size="sm">
+                          {isViolated ? (isHard ? 'VIOLATION' : 'WARNING') : 'PASSED'}
+                        </Badge>
+                      </div>
+                      <p className={`text-[11px] mt-1 ${isViolated ? (isHard ? 'text-rose-700 dark:text-rose-300' : 'text-amber-700 dark:text-amber-300') : 'text-emerald-700 dark:text-emerald-300'}`}>
+                        {cf.message}
+                      </p>
+                    </div>
+                  );
+                })
+              ) : (
+                <>
+                  <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/30">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">
+                        HARD: ESG Exclusion List
+                      </span>
+                      <Badge variant="success" size="sm">PASSED</Badge>
+                    </div>
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-300 mt-1">
+                      Zero proposed instruments are barred by active ESG exclusion mandates.
+                    </p>
+                  </div>
 
-              <div className="p-3 rounded-lg border border-blue-200 dark:border-blue-800/60 bg-blue-50/50 dark:bg-blue-950/30">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-blue-900 dark:text-blue-200">
-                    SOFT: Maximum Turnover Buffer
-                  </span>
-                  <Badge variant="brand" size="sm">EVALUATED</Badge>
-                </div>
-                <p className="text-[11px] text-blue-700 dark:text-blue-300 mt-1">
-                  Turnover (11.3%) remains within standard portfolio quarterly rebalancing limits.
-                </p>
-              </div>
+                  <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/30">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">
+                        HARD: Cash Overdraft Protection
+                      </span>
+                      <Badge variant="success" size="sm">SOLVENT</Badge>
+                    </div>
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-300 mt-1">
+                      Post-trade cash balance strictly exceeds minimum liquidity reserve.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg border border-blue-200 dark:border-blue-800/60 bg-blue-50/50 dark:bg-blue-950/30">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-blue-900 dark:text-blue-200">
+                        SOFT: Maximum Turnover Buffer
+                      </span>
+                      <Badge variant="brand" size="sm">EVALUATED</Badge>
+                    </div>
+                    <p className="text-[11px] text-blue-700 dark:text-blue-300 mt-1">
+                      Turnover remains within standard portfolio quarterly rebalancing limits.
+                    </p>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -321,7 +497,7 @@ export function RebalancingPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                Proposal <strong>RB-20260115-000001</strong> is staged in state <code>PENDING_REVIEW</code>.
+                Proposal <strong>{activeProposal ? activeProposal.proposal_id : 'RB-2026-000004'}</strong> is staged in state <code>{activeProposal ? activeProposal.status : 'PENDING_REVIEW'}</code>.
               </p>
               <Link to="/approvals" className="block">
                 <Button variant="primary" size="md" className="w-full" rightIcon={<ArrowRight className="w-4 h-4" />}>

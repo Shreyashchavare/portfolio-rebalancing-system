@@ -1215,7 +1215,7 @@ class TestPolicyAPIEndpoints:
             is_active=True,
         )
         pr = MarketPrice(instrument_id="INS-CASH", price_date=as_of, price=Decimal("1.0000"), source="TEST")
-        target = TargetAllocation(portfolio_id="PORT-REB-IND", asset_class="CASH", target_weight=Decimal("1.0000"), effective_from=date(2025, 1, 1))
+        target = TargetAllocation(portfolio_id="PORT-REB-IND", asset_class="CASH", target_weight=Decimal("100.0000"), effective_from=date(2025, 1, 1))
 
         db_session.add_all([inv, port, ins, fee, pr, target])
         db_session.commit()

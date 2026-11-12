@@ -1,0 +1,164 @@
+{
+  "expected_counts": {
+    "investor_profile": 500,
+    "portfolio": 1000,
+    "instrument": 5000,
+    "market_price": 1250000,
+    "target_allocation": 4000,
+    "holding": 5000,
+    "fee_schedule": 30,
+    "constraint": 2008,
+    "constraint_instrument": 3,
+    "rebalance_proposal": 1000,
+    "trade": 2000,
+    "ground_truth": 5
+  },
+  "actual_csv_counts": {
+    "investor_profile": 500,
+    "portfolio": 1000,
+    "instrument": 5000,
+    "market_price": 1250000,
+    "target_allocation": 4000,
+    "holding": 5000,
+    "fee_schedule": 30,
+    "constraint": 2008,
+    "constraint_instrument": 3,
+    "rebalance_proposal": 1000,
+    "trade": 2000,
+    "ground_truth": 5
+  },
+  "row_counts_match": true,
+  "foreign_keys_valid": true,
+  "ground_truth_anomalies_count": 5,
+  "resource_requirements": {
+    "dataset_files_total_size_mb": 434.5,
+    "sql_dump_size_mb": 188.33,
+    "total_market_price_records": 1250000,
+    "total_instruments": 5000,
+    "total_portfolios": 1000,
+    "estimated_postgres_db_storage_mb": 550,
+    "recommended_docker_postgres_ram_mb": 2048,
+    "recommended_shared_buffers": "256MB",
+    "recommended_work_mem": "16MB",
+    "estimated_ingestion_time_seconds": 45,
+    "status": "VERIFIED_OFFLINE (Not loaded into demo instance to preserve zero latency)"
+  },
+  "checksums": {
+    "csv/constraint.csv": {
+      "sha256": "b36f4bed036799f8add4dd8fe5d9ab1aae6c9f3bf1b303aed7018efa031e0b9f",
+      "size_bytes": 359341
+    },
+    "csv/constraint_instrument.csv": {
+      "sha256": "873a7fb2f1a2cfe9d58666dea8d1511bea406f81db8e2cb103a9150be61c189f",
+      "size_bytes": 98
+    },
+    "csv/fee_schedule.csv": {
+      "sha256": "bbd104f6031a593633f611951a5e74406f15e0943ebfd0df906d3ac85d8ebf03",
+      "size_bytes": 2879
+    },
+    "csv/ground_truth.csv": {
+      "sha256": "4d1c8daebf4006cd63e2e74b8954c02cf95f45186f3d2f5994ab7335e77a75cc",
+      "size_bytes": 725
+    },
+    "csv/holding.csv": {
+      "sha256": "a381d12a100f954eac757ec24720b7c8211e8c5646d441d674952486d85cbc13",
+      "size_bytes": 430762
+    },
+    "csv/instrument.csv": {
+      "sha256": "c9b253d2b236b44285e91ed592899966381f32d5de478e8891e6735a667620a5",
+      "size_bytes": 317112
+    },
+    "csv/investor_profile.csv": {
+      "sha256": "a03c1ff63f86fc66666833dcb5ad0139080e711b39d77225944de1a7d2a0eaa8",
+      "size_bytes": 29390
+    },
+    "csv/market_price.csv": {
+      "sha256": "6bdc04091ddaac1e18a393e984a2087916a399e7a226b68e4cc96483508cb297",
+      "size_bytes": 61098912
+    },
+    "csv/portfolio.csv": {
+      "sha256": "a83af354643574d8123dd402c4003b29db3b18c96f4d2b5653ffc77aeed885a0",
+      "size_bytes": 104742
+    },
+    "csv/rebalance_proposal.csv": {
+      "sha256": "36ac1a357cebac8e483a3614ad874cb3d2c359d129c63e43d4a974eb5d6542b7",
+      "size_bytes": 157426
+    },
+    "csv/target_allocation.csv": {
+      "sha256": "218d206cdabcc01c81771112fbcd704a9b747fc6db6ff25ef9241257f0e4d3a8",
+      "size_bytes": 199964
+    },
+    "csv/trade.csv": {
+      "sha256": "22106993aa6053930525304efcd70744748b367d98fa08161fce6bebfa01c906",
+      "size_bytes": 253154
+    },
+    "json/constraint.json": {
+      "sha256": "4c47d2a297ffa8b7a739bb3dab1a9af38ea19b3bdb0391bf26dc57ef933145ae",
+      "size_bytes": 975641
+    },
+    "json/constraint_instrument.json": {
+      "sha256": "4cbef9d16fcc358664980995f1267afa77e1e6482e4d04fa94564a851816447d",
+      "size_bytes": 249
+    },
+    "json/fee_schedule.json": {
+      "sha256": "d264ac7fdd00216f7409ef3a7275a9527336b6121b30d2fe9ec4479c9735be2e",
+      "size_bytes": 12274
+    },
+    "json/ground_truth.json": {
+      "sha256": "aadd98559461f5d5cad9d89c8dae6c6cd2aacc8f1ce0723939827abbeb3dc579",
+      "size_bytes": 1299
+    },
+    "json/holding.json": {
+      "sha256": "63292c9b8802648382bc7d86fdd8a29f29bd21799a76af3e764feaf0cc5d40a6",
+      "size_bytes": 1040706
+    },
+    "json/instrument.json": {
+      "sha256": "b66e8cc6b71cafbd10e16c0f067251195ae093c969fcb67014ee75dd86a50c25",
+      "size_bytes": 1022046
+    },
+    "json/investor_profile.json": {
+      "sha256": "6fbee7385b4a5f5495487e7c750b018023072d7e3f9cd79c5a95bfa05d501899",
+      "size_bytes": 76850
+    },
+    "json/market_price.json": {
+      "sha256": "992e59527d9fe2b0ce99f962e8d14cfb7736e3ce6f5edeec6a7921421ad06784",
+      "size_bytes": 189848873
+    },
+    "json/portfolio.json": {
+      "sha256": "2d31269c440ab08b5b24c0bfddb5851cf7ea39c69c9e198e51371e59dc6dc4d2",
+      "size_bytes": 251672
+    },
+    "json/rebalance_proposal.json": {
+      "sha256": "7ba120d91e7eac8adc4c0e9965b109c7b79dc278d70945fc372376d642a5fdda",
+      "size_bytes": 404850
+    },
+    "json/target_allocation.json": {
+      "sha256": "5796097d8d9f6f038753312e1386852a8d359fe67c62bea392e7417e744c7c64",
+      "size_bytes": 779896
+    },
+    "json/trade.json": {
+      "sha256": "a5904f43cedb52b638fc58026ccdd13861b3a6da7e8a59c7aa68cc870b35e851",
+      "size_bytes": 759035
+    },
+    "metadata.json": {
+      "sha256": "6980d29ebf90b1cc038b6c16f6488b0a21f02bd7b4d97789b75c8e013b917eee",
+      "size_bytes": 2978
+    },
+    "README.md": {
+      "sha256": "4d36ce94c67105e4532b7e3d8f1c94c01049840de5fe1838366c35d95c875842",
+      "size_bytes": 1180
+    },
+    "sql/import.log": {
+      "sha256": "831b4a7ff112efde8deaa1998a25744993a7fce99de5420d8e2a843efdd4d680",
+      "size_bytes": 902
+    },
+    "sql/seed_data.sql": {
+      "sha256": "5cfb07269bb601185b032767d907c94ce22b6c854e7961563c52d3a7c94080ba",
+      "size_bytes": 197475528
+    },
+    "validation_summary.json": {
+      "sha256": "3b27e426976ab37ebf980e28e9da92ac91cacce1db9dbb814dae8f48a3e2e98b",
+      "size_bytes": 147
+    }
+  }
+}

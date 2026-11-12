@@ -7,11 +7,14 @@ export const API_ENDPOINTS = {
   HEALTH: '/health',
 
   // Portfolio Analytics
+  PORTFOLIOS: '/api/v1/portfolios',
   PORTFOLIO_VALUATION: (portfolioId: string) => `/api/v1/portfolios/${portfolioId}/valuation`,
   PORTFOLIO_DRIFT: (portfolioId: string) => `/api/v1/portfolios/${portfolioId}/drift`,
 
   // Deterministic Rebalancing Engine
   CREATE_PROPOSAL: (portfolioId: string) => `/api/v1/portfolios/${portfolioId}/rebalance/proposals`,
+  PROPOSALS: '/api/v1/proposals',
+  PROPOSAL_BY_ID: (proposalId: string) => `/api/v1/proposals/${proposalId}`,
 
   // Policy RAG & Semantic Retrieval
   POLICY_INGEST: '/api/v1/policies/ingest',

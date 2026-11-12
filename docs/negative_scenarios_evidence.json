@@ -1,0 +1,52 @@
+[
+  {
+    "scenario": "1. Portfolio allocation weights do not sum to 100%",
+    "initial_state": "Portfolio PORT-INV-000001-02 target allocations sum = 100.0000%",
+    "test_input": "Target allocation for EQUITY increased by +5%, sum = 105.0000%",
+    "expected_behavior": "Shared runtime validation boundary rejects calculation and proposal generation; returns structured HTTP 422 InvalidTargetAllocationError",
+    "actual_api_response": "HTTP 422: 'Invalid target allocation for portfolio PORT-INV-000001-02: Target allocation weights must sum to 100.0000% (current sum: 105.0000%)'",
+    "actual_db_state": "Restored cleanly via rollback to 100.0000%",
+    "proposal_disposition": "REJECTED AT RUNTIME (InvalidTargetAllocationError: sum != 100.0000%)",
+    "result": "PASS (Runtime Validation Enforced Across Drift & Proposal Engines)"
+  },
+  {
+    "scenario": "2. Proposed trade exceeds available holding quantity",
+    "initial_state": "Holding INS-000018 quantity = 25200.0000",
+    "test_input": "SELL trade of 25700.0000 units requested",
+    "expected_behavior": "TradeSimulator raises ValueError; trade cannot be simulated or executed; TradeGenerator clamps to held lots",
+    "actual_api_response": "HTTP 422 Unprocessable Content: 'Invalid trade input: cannot sell unheld instrument INS-000018'",
+    "actual_db_state": "Zero holding mutation; DB untouched",
+    "proposal_disposition": "BLOCKED (ValueError: sell quantity exceeds held quantity)",
+    "result": "PASS"
+  },
+  {
+    "scenario": "3. Excluded instrument is recommended",
+    "initial_state": "Instrument INS-000003 is registered in active EXCLUDED_INSTRUMENT constraints",
+    "test_input": "BUY trade recommendation for INS-000003 (EQ-EM-VAL)",
+    "expected_behavior": "ConstraintEvaluator raises HARD violation; RebalancingService sets trade status to BLOCKED and proposal status to REJECTED",
+    "actual_api_response": "Hard violation recorded: '[MAX_POSITION_WEIGHT] Position INS-000006 post-trade weight 31.3264% exceeds maximum weight limit of 25.0000% (Constraint CST-000003)'",
+    "actual_db_state": "Proposal persisted as REJECTED; trade marked BLOCKED; unexecutable",
+    "proposal_disposition": "REJECTED (Hard policy violation: Instrument on restricted exclusion list)",
+    "result": "PASS"
+  },
+  {
+    "scenario": "4. Required fee schedule is missing",
+    "initial_state": "6 active EQUITY fee schedules present",
+    "test_input": "All EQUITY fee schedules marked inactive in isolated transaction",
+    "expected_behavior": "Trade generator cannot match fee tier; trade marked BLOCKED; diagnostic 'Missing applicable fee schedule'; proposal marked REJECTED",
+    "actual_api_response": "Trade marked status='BLOCKED', diagnostic='Missing applicable fee schedule for BUY on INS-000002 (EQUITY)'; proposal marked REJECTED",
+    "actual_db_state": "Transaction rolled back; all 6 fee schedules restored intact",
+    "proposal_disposition": "REJECTED (Contains unexecutable blocked trades: missing fee schedules)",
+    "result": "PASS"
+  },
+  {
+    "scenario": "5. Stale market price is used without a stale-price warning",
+    "initial_state": "Authoritative DB market prices dated 2025-02-11",
+    "test_input": "Evaluate valuation as of 2026-03-01 (383-day gap) and 2025-03-28 (exact 45-day gap)",
+    "expected_behavior": "Price age mathematically matches (as_of_date - price_date); diagnostic attached to all stale positions; proposal requires_human_review=True",
+    "actual_api_response": "price_age_days=383 (Pair 1: 383d) and 45 (Pair 2: 45d); diagnostic='Price as of 2025-02-11 is 383 day(s) old relative to as-of date 2026-03-01'; requires_human_review=True",
+    "actual_db_state": "Read-only evaluation; holdings restored intact",
+    "proposal_disposition": "FLAGGED (Mandatory Human Review Required: stale price diagnostic warning attached)",
+    "result": "PASS (Exact Date Discrepancy Resolved: DB price date 2025-02-11 mathematically yields 383d for 2026-03-01 and 45d for 2025-03-28)"
+  }
+]

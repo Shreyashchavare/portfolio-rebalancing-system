@@ -3,51 +3,38 @@ import { screen } from '@testing-library/react';
 import { renderWithProviders } from './test-utils';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 
-describe('Dashboard Foundation & Placeholder Integrity', () => {
-  it('renders welcome area, title, and architecture disclaimer banner', () => {
+describe('Role-Aware Business Dashboard (Phase 8.4B)', () => {
+  it('renders role-aware compliance workspace for default reviewer persona', () => {
     renderWithProviders(<DashboardPage />);
 
-    expect(screen.getByText('Operations Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('PHASE 8.2 DUAL THEME')).toBeInTheDocument();
-    expect(
-      screen.getByText(/Dual Theme Enterprise Architecture Active/i)
-    ).toBeInTheDocument();
+    // Header and role-specific workspace title
+    expect(screen.getByText('Risk & Compliance Review Desk')).toBeInTheDocument();
+    expect(screen.getByText('MANDATORY DUAL-KEY GOVERNANCE')).toBeInTheDocument();
+
+    // Central 8-stage Rebalancing Lifecycle Stepper
+    expect(screen.getByText('Central Rebalancing Lifecycle')).toBeInTheDocument();
+    expect(screen.getByText(/STAGE 6 OF 8/i)).toBeInTheDocument();
   });
 
-  it('renders clearly labeled placeholder KPI cards without fabricated financial figures', () => {
+  it('renders pending governance proposal queue with inspection controls', () => {
     renderWithProviders(<DashboardPage />);
 
-    // Check KPI titles
-    expect(screen.getByText('Total Managed AUM')).toBeInTheDocument();
-    expect(screen.getByText('Active Portfolios')).toBeInTheDocument();
-    expect(screen.getByText('Corridor Drift Alerts')).toBeInTheDocument();
-    expect(screen.getByText('Pending Approvals')).toBeInTheDocument();
-
-    // Check placeholder values ($—.— and —)
-    expect(screen.getByText('$—.—')).toBeInTheDocument();
-    const dashes = screen.getAllByText('—');
-    expect(dashes.length).toBeGreaterThanOrEqual(3);
-
-    // Check explicit placeholder badges
-    expect(screen.getByText('Awaiting Valuation Feed')).toBeInTheDocument();
-    expect(screen.getByText('Awaiting Portfolio Store')).toBeInTheDocument();
-    expect(screen.getByText('Drift Engine Inactive')).toBeInTheDocument();
-    expect(screen.getByText('Governance Queue Idle')).toBeInTheDocument();
-
-    // Invariant: Verify NO fake financial figures are rendered as live data
-    expect(screen.queryByText('$1,050,000.00')).not.toBeInTheDocument();
-    expect(screen.queryByText('$450,000.00')).not.toBeInTheDocument();
-    expect(screen.queryByText('71.4286%')).not.toBeInTheDocument();
+    expect(screen.getByText('Pending Proposal Governance Worklist')).toBeInTheDocument();
+    expect(screen.getByText('PROP-DEMO-01')).toBeInTheDocument();
+    expect(screen.getByText('PENDING HUMAN REVIEW')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Inspect & Decide/i })).toBeInTheDocument();
   });
 
-  it('renders recent activity and portfolio distribution empty state placeholders', () => {
+  it('strictly excludes removed redundant modules and placeholder banners', () => {
     renderWithProviders(<DashboardPage />);
 
-    expect(
-      screen.getByText('Portfolio Valuation Module Pending')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('No Recent Audit Activity Recorded')
-    ).toBeInTheDocument();
+    // Invariant: Redundant "Core System Modules" box has been removed
+    expect(screen.queryByText('Core System Modules')).not.toBeInTheDocument();
+
+    // Invariant: Static architecture disclaimer banner has been removed
+    expect(screen.queryByText(/Dual Theme Enterprise Architecture Active/i)).not.toBeInTheDocument();
+
+    // Invariant: Unwired placeholders ($—.—) have been replaced with live records
+    expect(screen.queryByText('$—.—')).not.toBeInTheDocument();
   });
 });

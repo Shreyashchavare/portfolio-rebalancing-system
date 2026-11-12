@@ -172,20 +172,24 @@ The active token is passed via `Authorization: Bearer <token>` on all requests.
 
 ---
 
-## 7. Current Implementation Scope (Phase 8.1)
+## 7. Current Implementation Scope (Phases 8.1 – 8.3)
 
-- [x] Application shell architecture with enterprise dark navy sidebar, responsive drawer, and header.
-- [x] Complete Dual Theme Design System with Light, Dark, and System modes.
-- [x] Anti-flash initial theme bootstrapper and persistent `localStorage` preference synchronization.
-- [x] Semantic design token system (Navy/Slate surfaces, brand blue, positive emerald, negative rose, warning amber, info sky).
-- [x] Reusable financial UI component library (`DataTable`, `FinancialMetricCard`, `Tabs`, `Modal`, `SearchInput`, `Button`, `Card`, `Badge`, `Alert`, `EmptyState`, `Skeleton`, `StatusBanner`, `ThemeSelector`).
-- [x] Feature-specific interface architecture for all 7 primary modules (`/dashboard`, `/portfolios`, `/rebalancing`, `/approvals`, `/policies`, `/workflows`, `/settings`) with zero fabricated financial numbers.
-- [x] Navigation routing for all modules + `/` redirect + 404 catch-all.
-- [x] Centralized typed Axios API client with request/response interceptors, base URL resolution, and `ApiError` mapping.
-- [x] Live backend connectivity monitoring via `/health` with automatic status badges.
-- [x] Development reviewer token context and RBAC switcher.
-- [x] 100% test coverage across 6 test suites (30 tests) verifying mounting, routing, themes, 404, shell responsiveness, API errors, and placeholder data integrity.
-- [x] Strict TypeScript (`tsc --noEmit`), ESLint 9 (`eslint .`), and production bundling (`vite build`) verified.
+- [x] **Application Shell & Navigation (Phase 8.1):** Enterprise dark navy sidebar, responsive drawer, header, and declarative routing for 7 primary modules.
+- [x] **Dual Theme System (Phase 8.2):** Complete Light, Dark, and System modes with anti-flash script and persistent `localStorage` preference sync.
+- [x] **Reusable UI Component Library (Phase 8.2):** `DataTable`, `FinancialMetricCard`, `Tabs`, `Modal`, `SearchInput`, `Button`, `Card`, `Badge`, `Alert`, `EmptyState`, `Skeleton`, `StatusBanner`, and `ThemeSelector`.
+- [x] **Portfolio Management & Valuation Integration (Phase 8.3):**
+  - Verified backend contract documented in `frontend/docs/portfolio-api-contract.md`.
+  - Live data consumption from `GET /api/v1/portfolios/{id}/valuation` and `GET /api/v1/portfolios/{id}/drift`.
+  - Interactive Recharts Donut chart (`AssetAllocationChart`) with center total value label, slice highlighting, and custom legend.
+  - Interactive Recharts Grouped Horizontal Bar chart (`TargetAllocationChart`) comparing target vs. actual weights with drift badges.
+  - Deterministic drift table (`DriftAnalysis`) with percentage-point differences (`pp`), dollar drift (`$`), directional action signals (`BUY`, `SELL`, `HOLD`), and rebalance corridor trigger evaluation.
+  - High-density `HoldingsTable` with real-time symbol search, asset-class filter dropdown, lot quantities, unit prices, and price age staleness diagnostics (`{price_age_days}d STALE`).
+  - Institutional `PortfolioSelector` with seeded portfolios (`PORT-INV-000001-02`, etc.) and custom ID entry with live 404/422 error feedback.
+  - Zero fabricated live financial data; historical valuation disclaimer component explaining unsupported backend time-series capability.
+- [x] **Test & Quality Verification:**
+  - 100% test pass rate across 7 test suites (43 tests) including comprehensive `portfolios.test.tsx` (13 tests) verifying service mappings, chart transformations, holding search/filters, null fields, empty responses, and error handling.
+  - Strict TypeScript (`tsc --noEmit`), ESLint 9 (`eslint .`), and Vite production bundling verified.
+  - 100% pass rate on backend test suite (507 tests) with zero backend files modified.
 
 ---
 
@@ -216,6 +220,7 @@ YottaFlex implements a zero-flash dual theme system built upon Tailwind CSS's `c
 
 ## 9. Known Limitations & Roadmap
 
-1. **API Integration Readiness:** Portfolio valuation, live rebalancing proposals, approval workflows, policy RAG search, and workflow execution UI feature high-fidelity interfaces and are ready for full API integration in Phase 8.3+.
-2. **Identity Provider Integration:** The frontend currently utilizes development mock tokens matching the backend's `ENABLE_DEV_MOCK_AUTH=true`. A production IdP flow (e.g. Auth0 / Keycloak / Cognito) will be connected when production auth infrastructure is provisioned.
+1. **Portfolio Catalog Endpoint:** `GET /api/v1/portfolios` is unsupported in the FastAPI backend. The frontend surfaces seeded institutional portfolios and provides a custom ID input.
+2. **Historical Valuation Time Series:** The backend does not expose historical valuation curves; point-in-time valuations are computed dynamically on each query.
+3. **Identity Provider Integration:** The frontend currently utilizes development mock tokens matching the backend's `ENABLE_DEV_MOCK_AUTH=true`. A production IdP flow (e.g. Auth0 / Keycloak / Cognito) will be connected when production auth infrastructure is provisioned.
 3. **CORS Requirement in Standalone Production:** If the production frontend is hosted on a separate domain from the FastAPI backend without an API gateway or reverse proxy (such as Nginx/Caddy), `CORSMiddleware` will need to be configured on the FastAPI application.
