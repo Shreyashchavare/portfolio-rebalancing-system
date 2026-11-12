@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-sidebar-bg: #0a192f;
+    --color-sidebar-hover: #162a45;
+    --color-sidebar-active: #1e3a5f;
+    --color-sidebar-text: #94a3b8;
+    --color-sidebar-text-active: #ffffff;
+
+    /* Semantic Chart Tokens - Light */
+    --chart-grid: #e2e8f0;
+    --chart-text: #64748b;
+    --chart-tooltip-bg: #ffffff;
+    --chart-tooltip-border: #cbd5e1;
+    --chart-equity: #2563eb;
+    --chart-fixed-income: #059669;
+    --chart-cash: #0891b2;
+    --chart-commodities: #d97706;
+  }
+
+  .dark {
+    /* Semantic Chart Tokens - Dark */
+    --chart-grid: #1e293b;
+    --chart-text: #94a3b8;
+    --chart-tooltip-bg: #0f172a;
+    --chart-tooltip-border: #334155;
+    --chart-equity: #3b82f6;
+    --chart-fixed-income: #10b981;
+    --chart-cash: #06b6d4;
+    --chart-commodities: #f59e0b;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased transition-colors duration-200;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
+  }
+}
+
+/* Custom scrollbars for dense financial tables and sidebars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
