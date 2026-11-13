@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 export function ApprovalsPage() {
-  const { reviewer, canApprove } = useAuth();
+  const { reviewer, canApprove, setPersona, isDevelopment } = useAuth();
   const [proposalId, setProposalId] = useState('RB-2026-000002');
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
@@ -249,6 +249,27 @@ export function ApprovalsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Role Notice if not authorized to approve */}
+      {!canApprove && (
+        <Alert variant="info" title="Dual-Key Fiduciary Authorization Notice">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span>
+              Your current active role is <strong>{reviewer?.role || 'VIEWER'}</strong>. Institutional compliance requires a Risk / Compliance Reviewer (<code>REV-DEV-01</code>) or System Administrator to approve or reject staged proposals.
+            </span>
+            {isDevelopment && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPersona('COMPLIANCE')}
+                leftIcon={<UserCheck className="w-3.5 h-3.5" />}
+              >
+                Switch to Reviewer Role
+              </Button>
+            )}
+          </div>
+        </Alert>
+      )}
 
       {/* Governance Decision Context Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

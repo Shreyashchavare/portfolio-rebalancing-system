@@ -66,7 +66,7 @@ export function CustomerWorkspace() {
     if (latestProposal.status === 'REJECTED') {
       return 'decision_rendered';
     }
-    if (latestProposal.status === 'PENDING_APPROVAL' || latestProposal.status === 'PENDING_REVIEW') {
+    if (latestProposal.status === 'PENDING_REVIEW') {
       return 'decision_rendered';
     }
     return 'recommendation_generated';
@@ -378,7 +378,7 @@ export function CustomerWorkspace() {
         <div className="space-y-6">
           <BusinessWorkflowLifecycle
             currentStage={currentWorkflowStage}
-            proposalStatus={latestProposal?.status as any}
+            proposalStatus={latestProposal?.status ?? null}
             portfolioId={portfolioId}
             proposalId={proposalId}
           />

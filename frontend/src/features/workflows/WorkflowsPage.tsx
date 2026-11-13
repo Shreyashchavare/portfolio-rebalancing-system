@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { workflowService } from '@/services/api/workflowService';
+import { approvalService } from '@/services/api/approvalService';
 import { SEEDED_PORTFOLIO_REFERENCES } from '@/features/portfolios/types/portfolio';
 import { useProposal, useApproveProposal } from '@/hooks/useApprovals';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,6 +17,8 @@ import {
   Briefcase,
   ExternalLink,
   XCircle,
+  RotateCw,
+  UserCheck,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -63,7 +66,7 @@ export function WorkflowsPage() {
     activeWorkflow?.proposal?.proposal_id ||
     workflows[0]?.proposalId;
 
-  const { data: proposalData } = useProposal(activeProposalId || undefined);
+  const { data: proposalData, refetch: refetchProposal } = useProposal(activeProposalId || undefined);
 
   const effectiveStatus = proposalData?.status
     ? proposalData.status === 'APPROVED'
@@ -77,7 +80,7 @@ export function WorkflowsPage() {
   const isRejected = effectiveStatus === 'REJECTED';
   const isHalted = effectiveStatus === 'PENDING_HUMAN_REVIEW';
 
-  const { canApprove } = useAuth();
+  const { canApprove, setPersona, isDevelopment } = useAuth();
   const approveMutation = useApproveProposal();
 
   const handleDirectApprove = async () => {
@@ -87,8 +90,20 @@ export function WorkflowsPage() {
         proposalId: activeProposalId,
         payload: { notes: 'Approved directly from Workflow Orchestration console.' },
       });
+      refetchProposal();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Approval failed';
+      setActionError(msg);
+    }
+  };
+
+  const handleResetProposal = async () => {
+    if (!activeProposalId) return;
+    try {
+      await approvalService.resetProposal(activeProposalId);
+      refetchProposal();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Reset failed';
       setActionError(msg);
     }
   };
@@ -371,8 +386,8 @@ export function WorkflowsPage() {
                   <strong className="font-mono">{activeProposalId}</strong>. Institutional policy halts execution until approved.
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                {canApprove && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {canApprove ? (
                   <Button
                     variant="primary"
                     size="sm"
@@ -382,6 +397,22 @@ export function WorkflowsPage() {
                   >
                     Approve Proposal &amp; Complete Workflow
                   </Button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-amber-800 dark:text-amber-300 font-medium">
+                      Requires Reviewer / Admin role to sign off
+                    </span>
+                    {isDevelopment && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => setPersona('COMPLIANCE')}
+                        leftIcon={<UserCheck className="w-3.5 h-3.5" />}
+                      >
+                        Switch to Reviewer to Approve
+                      </Button>
+                    )}
+                  </div>
                 )}
                 <Link to="/approvals">
                   <Button variant="outline" size="sm" rightIcon={<ExternalLink className="w-3.5 h-3.5" />}>
@@ -400,13 +431,55 @@ export function WorkflowsPage() {
                   Stage 7 Completed: Proposal <strong className="font-mono">{activeProposalId}</strong> was approved. Execution pipeline has concluded and audit log recorded.
                 </span>
               </div>
-              <Link
-                to="/approvals"
-                className="font-medium text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1"
-              >
-                <span>View Fiduciary Audit Decision</span>
-                <ExternalLink className="w-3 h-3" />
-              </Link>
+              <div className="flex items-center gap-2">
+                {canApprove && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetProposal}
+                    leftIcon={<RotateCw className="w-3.5 h-3.5" />}
+                  >
+                    Reset to Pending Review
+                  </Button>
+                )}
+                <Link
+                  to="/approvals"
+                  className="font-medium text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                >
+                  <span>View Fiduciary Audit Decision</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {isRejected && activeProposalId && (
+            <div className="mt-4 p-3 rounded-lg border border-rose-200 dark:border-rose-900/60 bg-rose-50/70 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-rose-950 dark:text-rose-200">
+                <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                <span>
+                  Stage 7 Terminal: Proposal <strong className="font-mono">{activeProposalId}</strong> was rejected by compliance. Rebalancing execution halted.
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {canApprove && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetProposal}
+                    leftIcon={<RotateCw className="w-3.5 h-3.5" />}
+                  >
+                    Reset to Pending Review
+                  </Button>
+                )}
+                <Link
+                  to="/approvals"
+                  className="font-medium text-rose-700 dark:text-rose-400 hover:underline flex items-center gap-1"
+                >
+                  <span>View Rejection Audit</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
             </div>
           )}
         </CardContent>
