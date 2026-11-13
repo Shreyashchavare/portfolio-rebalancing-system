@@ -9,6 +9,7 @@ import { TargetAllocationChart } from '@/features/portfolios/components/TargetAl
 import { HoldingsTable } from '@/features/portfolios/components/HoldingsTable';
 import { ProposalAuditHistory } from '@/components/business/ProposalAuditHistory';
 import { BusinessWorkflowLifecycle } from '@/components/business/BusinessWorkflowLifecycle';
+import { SEEDED_PORTFOLIO_REFERENCES } from '@/features/portfolios/types/portfolio';
 import {
   Briefcase,
   PieChart,
@@ -40,7 +41,8 @@ export function CustomerWorkspace() {
     setSearchParams({ tab });
   };
 
-  const portfolioId = 'PORT-INV-000001-02';
+  const [portfolioId, setPortfolioId] = useState<string>('PORT-INV-000001-02');
+  const activeRef = SEEDED_PORTFOLIO_REFERENCES.find((r) => r.portfolio_id === portfolioId);
 
   const { data: valuation, isLoading: isValLoading } = usePortfolioValuation(portfolioId, DEFAULT_AS_OF_DATE);
   const { data: drift } = usePortfolioDrift(portfolioId, DEFAULT_AS_OF_DATE);
@@ -63,16 +65,42 @@ export function CustomerWorkspace() {
             </Badge>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Personal wealth account &bull; Account Reference: <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">{portfolioId}</span>
+            Personal wealth account &bull; Investor:{' '}
+            <span className="font-semibold text-slate-800 dark:text-slate-200">
+              {activeRef ? activeRef.portfolio_name.split(' ').slice(0, 2).join(' ') : 'Account Holder'}
+            </span>{' '}
+            (<span className="font-mono">{activeRef?.investor_id || 'INV-000001'}</span>) &bull; Reference:{' '}
+            <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">{portfolioId}</span>
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs">
-          <Badge variant="neutral" size="sm" className="font-mono">
-            READ-ONLY VIEW
-          </Badge>
-          <span className="text-slate-400">&bull;</span>
-          <span className="text-slate-500 dark:text-slate-400">Institutional Fiduciary Custody</span>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 shadow-sm">
+            <label htmlFor="customer-account-select" className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Profile:
+            </label>
+            <select
+              id="customer-account-select"
+              aria-label="Select Customer Account"
+              value={portfolioId}
+              onChange={(e) => setPortfolioId(e.target.value)}
+              className="bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
+            >
+              {SEEDED_PORTFOLIO_REFERENCES.map((ref) => (
+                <option key={ref.portfolio_id} value={ref.portfolio_id} className="dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                  {ref.investor_id}: {ref.portfolio_name.split(' ').slice(0, 2).join(' ')} ({ref.portfolio_id})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs">
+            <Badge variant="neutral" size="sm" className="font-mono">
+              READ-ONLY VIEW
+            </Badge>
+            <span className="text-slate-400 hidden sm:inline">&bull;</span>
+            <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">Institutional Fiduciary Custody</span>
+          </div>
         </div>
       </div>
 
