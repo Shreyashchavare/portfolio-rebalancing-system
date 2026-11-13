@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -8,7 +8,7 @@ import { AssetAllocationChart } from '@/features/portfolios/components/AssetAllo
 import { TargetAllocationChart } from '@/features/portfolios/components/TargetAllocationChart';
 import { HoldingsTable } from '@/features/portfolios/components/HoldingsTable';
 import { ProposalAuditHistory } from '@/components/business/ProposalAuditHistory';
-import { BusinessWorkflowLifecycle } from '@/components/business/BusinessWorkflowLifecycle';
+import { BusinessWorkflowLifecycle, type WorkflowStage } from '@/components/business/BusinessWorkflowLifecycle';
 import { SEEDED_PORTFOLIO_REFERENCES } from '@/features/portfolios/types/portfolio';
 import { useProposals } from '@/hooks/useApprovals';
 import {
@@ -55,6 +55,22 @@ export function CustomerWorkspace() {
   const totalValue = parseFloat(valuation?.total_market_value || '0');
   const hasDriftAlert = drift?.rebalance_trigger?.status === 'TRIGGERED' || drift?.rebalance_trigger?.rebalance_required === true;
   const triggeredClass = drift?.rebalance_trigger?.triggered_asset_classes?.[0] || 'Asset Classes';
+
+  const currentWorkflowStage = useMemo<WorkflowStage>(() => {
+    if (!latestProposal) {
+      return hasDriftAlert ? 'drift_calculated' : 'holdings_evaluated';
+    }
+    if (latestProposal.status === 'APPROVED') {
+      return 'audit_logged';
+    }
+    if (latestProposal.status === 'REJECTED') {
+      return 'decision_rendered';
+    }
+    if (latestProposal.status === 'PENDING_APPROVAL' || latestProposal.status === 'PENDING_REVIEW') {
+      return 'decision_rendered';
+    }
+    return 'recommendation_generated';
+  }, [latestProposal, hasDriftAlert]);
 
   return (
     <div className="space-y-6">
@@ -361,8 +377,10 @@ export function CustomerWorkspace() {
       {activeTab === 'activity' && (
         <div className="space-y-6">
           <BusinessWorkflowLifecycle
-            currentStage={hasDriftAlert ? 'drift_calculated' : 'holdings_evaluated'}
+            currentStage={currentWorkflowStage}
+            proposalStatus={latestProposal?.status as any}
             portfolioId={portfolioId}
+            proposalId={proposalId}
           />
           <ProposalAuditHistory proposalId={proposalId} />
         </div>

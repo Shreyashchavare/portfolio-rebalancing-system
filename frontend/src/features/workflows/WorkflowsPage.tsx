@@ -6,6 +6,7 @@ import { Alert } from '@/components/ui/Alert';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { workflowService } from '@/services/api/workflowService';
 import { SEEDED_PORTFOLIO_REFERENCES } from '@/features/portfolios/types/portfolio';
+import { useProposal } from '@/hooks/useApprovals';
 import type { WorkflowResponse } from '@/types/orchestration';
 import {
   CheckCircle2,
@@ -13,6 +14,7 @@ import {
   Play,
   Briefcase,
   ExternalLink,
+  XCircle,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -54,6 +56,25 @@ export function WorkflowsPage() {
   const [activeWorkflow, setActiveWorkflow] = useState<WorkflowResponse | null>(null);
   const [isInitiating, setIsInitiating] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const activeProposalId =
+    activeWorkflow?.proposal_id ||
+    activeWorkflow?.proposal?.proposal_id ||
+    workflows[0]?.proposalId;
+
+  const { data: proposalData } = useProposal(activeProposalId || undefined);
+
+  const effectiveStatus = proposalData?.status
+    ? proposalData.status === 'APPROVED'
+      ? 'APPROVED'
+      : proposalData.status === 'REJECTED'
+      ? 'REJECTED'
+      : 'PENDING_HUMAN_REVIEW'
+    : activeWorkflow?.status || workflows[0]?.status;
+
+  const isCompleted = effectiveStatus === 'APPROVED' || effectiveStatus === 'COMPLETED';
+  const isRejected = effectiveStatus === 'REJECTED';
+  const isHalted = effectiveStatus === 'PENDING_HUMAN_REVIEW';
 
   const handleInitiateWorkflow = async () => {
     setIsInitiating(true);
@@ -259,46 +280,105 @@ export function WorkflowsPage() {
                 Live stage progress for execution run {activeWorkflow?.workflow_id || workflows[0]?.workflowId}
               </CardDescription>
             </div>
-            <Badge variant="warning" size="sm">
-              HALTED AT REVIEW GATE
+            <Badge
+              variant={isCompleted ? 'success' : isRejected ? 'danger' : 'warning'}
+              size="sm"
+            >
+              {isCompleted
+                ? 'PIPELINE COMPLETED'
+                : isRejected
+                ? 'PROPOSAL REJECTED'
+                : 'HALTED AT REVIEW GATE'}
             </Badge>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
             {LIFECYCLE_STAGES.map((stage, idx) => {
-              const isPendingReview = stage.stageKey === 'PENDING_HUMAN_REVIEW';
               const isPastStage = idx < 6;
+              const isStage7 = idx === 6;
+
+              const stagePassed = isPastStage || (isStage7 && isCompleted);
+              const stageFailed = isStage7 && isRejected;
+              const stagePending = isStage7 && isHalted;
 
               return (
                 <div
                   key={stage.id}
                   className={`p-2.5 rounded-lg border text-xs transition-all ${
-                    isPendingReview
+                    stagePending
                       ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/30 ring-2 ring-amber-500/20'
-                      : isPastStage
+                      : stagePassed
                       ? 'border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20'
+                      : stageFailed
+                      ? 'border-rose-200 dark:border-rose-900/60 bg-rose-50/40 dark:bg-rose-950/20'
                       : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-mono text-[10px] text-slate-400">0{idx + 1}</span>
-                    {isPastStage ? (
+                    {stagePassed ? (
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                    ) : isPendingReview ? (
+                    ) : stagePending ? (
                       <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 animate-pulse" />
+                    ) : stageFailed ? (
+                      <XCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                     ) : null}
                   </div>
                   <div className="font-semibold text-slate-900 dark:text-slate-100 text-[11px] truncate">
                     {stage.label}
                   </div>
                   <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 capitalize font-mono">
-                    {isPendingReview ? 'Pending Review' : 'Passed'}
+                    {stagePending
+                      ? 'Pending Review'
+                      : stagePassed
+                      ? isStage7
+                        ? 'Approved'
+                        : 'Passed'
+                      : stageFailed
+                      ? 'Rejected'
+                      : 'Pending'}
                   </div>
                 </div>
               );
             })}
           </div>
+
+          {/* Interactive Gating / Completion Bar */}
+          {isHalted && activeProposalId && (
+            <div className="mt-4 p-3 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-amber-950 dark:text-amber-200">
+                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>
+                  Stage 7 Gating: Fiduciary human signoff required for proposal{' '}
+                  <strong className="font-mono">{activeProposalId}</strong>. Institutional policy halts execution until approved.
+                </span>
+              </div>
+              <Link to="/approvals">
+                <Button variant="primary" size="sm" rightIcon={<ExternalLink className="w-3.5 h-3.5" />}>
+                  Complete Human Review
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          {isCompleted && activeProposalId && (
+            <div className="mt-4 p-3 rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/70 dark:bg-emerald-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-emerald-950 dark:text-emerald-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>
+                  Stage 7 Completed: Proposal <strong className="font-mono">{activeProposalId}</strong> was approved. Execution pipeline has concluded and audit log recorded.
+                </span>
+              </div>
+              <Link
+                to="/approvals"
+                className="font-medium text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1"
+              >
+                <span>View Fiduciary Audit Decision</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
         </CardContent>
       </Card>
 
