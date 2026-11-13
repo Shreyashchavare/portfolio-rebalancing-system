@@ -10,6 +10,7 @@ import { HoldingsTable } from '@/features/portfolios/components/HoldingsTable';
 import { ProposalAuditHistory } from '@/components/business/ProposalAuditHistory';
 import { BusinessWorkflowLifecycle } from '@/components/business/BusinessWorkflowLifecycle';
 import { SEEDED_PORTFOLIO_REFERENCES } from '@/features/portfolios/types/portfolio';
+import { useProposals } from '@/hooks/useApprovals';
 import {
   Briefcase,
   PieChart,
@@ -46,6 +47,10 @@ export function CustomerWorkspace() {
 
   const { data: valuation, isLoading: isValLoading } = usePortfolioValuation(portfolioId, DEFAULT_AS_OF_DATE);
   const { data: drift } = usePortfolioDrift(portfolioId, DEFAULT_AS_OF_DATE);
+  const { data: proposals } = useProposals({ portfolio_id: portfolioId });
+
+  const latestProposal = proposals?.[0];
+  const proposalId = latestProposal?.proposal_id || 'RB-2026-000002';
 
   const totalValue = parseFloat(valuation?.total_market_value || '0');
   const hasDriftAlert = drift?.rebalance_trigger?.status === 'TRIGGERED' || drift?.rebalance_trigger?.rebalance_required === true;
@@ -249,12 +254,30 @@ export function CustomerWorkspace() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Advisor Recommendation Summary</CardTitle>
-              <CardDescription className="text-xs">
-                Proposed adjustments prepared by portfolio operations based on your Investment Policy Statement (IPS).
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-sm">Advisor Recommendation Summary</CardTitle>
+                  <CardDescription className="text-xs">
+                    Proposed adjustments prepared by portfolio operations based on your Investment Policy Statement (IPS).
+                  </CardDescription>
+                </div>
+                {latestProposal && (
+                  <Badge
+                    variant={
+                      latestProposal.status === 'APPROVED'
+                        ? 'success'
+                        : latestProposal.status === 'REJECTED'
+                        ? 'danger'
+                        : 'warning'
+                    }
+                    size="sm"
+                  >
+                    {latestProposal.status}
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {hasDriftAlert ? (
                 <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/30 text-xs text-amber-950 dark:text-amber-200 space-y-2">
                   <div className="flex items-center gap-2 font-bold">
@@ -269,8 +292,64 @@ export function CustomerWorkspace() {
                   </div>
                 </div>
               ) : (
-                <div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
-                  Your portfolio is currently aligned with your target allocations. No rebalancing is needed.
+                <div className="py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+                  Your portfolio is currently aligned with your target allocations. No urgent rebalancing is needed.
+                </div>
+              )}
+
+              {/* Staged Recommended Trades Table */}
+              {latestProposal && latestProposal.trades && latestProposal.trades.length > 0 ? (
+                <div className="space-y-2.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+                      Staged Trade Orders &mdash; Reference <span className="font-mono">{latestProposal.proposal_id}</span>
+                    </h4>
+                    <span className="text-[11px] text-slate-500">
+                      {latestProposal.trades.length} {latestProposal.trades.length === 1 ? 'Order' : 'Orders'}
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
+                        <tr>
+                          <th className="px-3 py-2">Security</th>
+                          <th className="px-3 py-2">Class</th>
+                          <th className="px-3 py-2">Action</th>
+                          <th className="px-3 py-2 text-right">Quantity</th>
+                          <th className="px-3 py-2 text-right">Unit Price</th>
+                          <th className="px-3 py-2 text-right">Estimated Value</th>
+                          <th className="px-3 py-2 text-right">Est. Fee</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {latestProposal.trades.map((t) => (
+                          <tr key={t.trade_id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                            <td className="px-3 py-2">
+                              <span className="font-semibold text-slate-900 dark:text-slate-100">{t.symbol || t.instrument_id}</span>
+                              <span className="text-[10px] text-slate-500 block truncate max-w-[200px]">{t.instrument_name}</span>
+                            </td>
+                            <td className="px-3 py-2">
+                              <Badge variant="neutral" size="sm">{t.asset_class}</Badge>
+                            </td>
+                            <td className="px-3 py-2">
+                              <Badge variant={t.trade_side === 'BUY' ? 'success' : 'danger'} size="sm">
+                                {t.trade_side}
+                              </Badge>
+                            </td>
+                            <td className="px-3 py-2 text-right font-mono">{parseFloat(t.quantity).toLocaleString()}</td>
+                            <td className="px-3 py-2 text-right font-mono">${parseFloat(t.unit_price).toFixed(2)}</td>
+                            <td className="px-3 py-2 text-right font-mono font-medium">${parseFloat(t.trade_value).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                            <td className="px-3 py-2 text-right font-mono text-slate-500">${parseFloat(t.fee_amount).toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+                  No individual trade orders currently staged for this account.
                 </div>
               )}
             </CardContent>
@@ -285,7 +364,7 @@ export function CustomerWorkspace() {
             currentStage={hasDriftAlert ? 'drift_calculated' : 'holdings_evaluated'}
             portfolioId={portfolioId}
           />
-          <ProposalAuditHistory proposalId="RB-2026-000002" />
+          <ProposalAuditHistory proposalId={proposalId} />
         </div>
       )}
     </div>

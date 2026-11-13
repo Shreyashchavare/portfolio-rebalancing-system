@@ -54,8 +54,13 @@ export function ProposalAuditHistory({ proposalId, className }: ProposalAuditHis
             Loading immutable audit trail...
           </div>
         ) : isError || !data?.events?.length ? (
-          <div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
-            Zero audit events recorded for proposal {proposalId}.
+          <div className="py-6 text-center text-xs text-slate-500 dark:text-slate-400 space-y-1">
+            <p>
+              Zero audit events recorded for proposal <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">{proposalId}</span>.
+            </p>
+            <p className="text-[11px] text-slate-400 max-w-md mx-auto leading-relaxed">
+              Audit records are generated when an authorized reviewer signs off (Approve or Reject) in the Governance &amp; Approvals desk.
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
