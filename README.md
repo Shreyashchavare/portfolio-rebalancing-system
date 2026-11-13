@@ -1,4 +1,4 @@
-# YottaFlex — Policy-Constrained Portfolio Rebalancing System
+# YottaFlex â€” Policy-Constrained Portfolio Rebalancing System
 
 > **Enterprise-grade, policy-constrained portfolio rebalancing system combining deterministic financial algorithms, role-based human governance, and grounded semantic compliance policy RAG.**
 
@@ -12,7 +12,7 @@
 [![Typecheck](https://img.shields.io/badge/TypeScript-0%20Errors-brightgreen.svg)]()
 [![Security & Governance](https://img.shields.io/badge/Governance-Dual--Key%20Signoff-blueviolet.svg)]()
 
-> 📖 **Evaluator Notice:** For a step-by-step walkthrough of all 4 workstations, role switching, workflow gating, and evaluator FAQs, please consult the **[Interactive User & Evaluator Guide](docs/USER_GUIDE.md)**.
+> ðŸ“– **Evaluator Notice:** For a step-by-step walkthrough of all 4 workstations, role switching, workflow gating, and evaluator FAQs, please consult the **[System Overview & User Guide](docs/SYSTEM_OVERVIEW.md)**. For the test suite and evaluation evidence, see the **[Testing & Evaluation Guide](docs/TESTING_AND_EVALUATION.md)**.
 
 ---
 
@@ -81,7 +81,7 @@ The **YottaFlex Portfolio Rebalancing System** continuously compares investor ho
 
 Before starting, ensure you have the following installed on your machine:
 
-1. **Docker Desktop** (Engine 24+ / Compose v2) — Running and accessible.
+1. **Docker Desktop** (Engine 24+ / Compose v2) â€” Running and accessible.
 2. **Python 3.12** (or 3.10+) with `venv`.
 3. **Node.js 18+** & **npm 9+**.
 4. **Git**.
@@ -222,7 +222,7 @@ npm run dev
 ```
 
 The frontend application is now active at:
-👉 **`http://localhost:5173`**
+ðŸ‘‰ **`http://localhost:5173`**
 
 ---
 
@@ -246,7 +246,7 @@ Within the **Customer Account Portal**, an interactive **Profile Dropdown** allo
 
 ## 7. End-to-End Rebalancing Walkthrough
 
-*A detailed, step-by-step interactive manual is available in the **[User Guide](docs/USER_GUIDE.md)**.*
+*A detailed, step-by-step interactive manual is available in the **[System Overview & User Guide](docs/SYSTEM_OVERVIEW.md)**.*
 
 To experience the complete workflow using real database records:
 
@@ -302,8 +302,8 @@ npm run build --prefix frontend
 .\.venv\Scripts\python scripts\verify_full_dataset.py
 ```
 
-*Comprehensive testing evidence and feature coverage matrix:*  
-📄 [`docs/MASTER_TDD_VALIDATION_REPORT.md`](docs/MASTER_TDD_VALIDATION_REPORT.md)
+*Comprehensive testing evidence, negative scenarios, and reproducibility matrix:*
+ðŸ“„ [`docs/TESTING_AND_EVALUATION.md`](docs/TESTING_AND_EVALUATION.md)
 
 ---
 
