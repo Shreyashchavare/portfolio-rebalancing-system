@@ -7,7 +7,8 @@ import { Modal } from '@/components/ui/Modal';
 import { FinancialMetricCard } from '@/components/ui/FinancialMetricCard';
 import { ProposalAuditHistory } from '@/components/business/ProposalAuditHistory';
 import { useAuth } from '@/hooks/useAuth';
-import { useApproveProposal, useRejectProposal, useProposal } from '@/hooks/useApprovals';
+import { useApproveProposal, useRejectProposal, useProposal, useProposals } from '@/hooks/useApprovals';
+import { approvalService } from '@/services/api/approvalService';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -21,7 +22,7 @@ import {
 
 export function ApprovalsPage() {
   const { reviewer, canApprove } = useAuth();
-  const [proposalId, setProposalId] = useState('RB-2026-000004');
+  const [proposalId, setProposalId] = useState('RB-2026-000002');
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -30,9 +31,28 @@ export function ApprovalsPage() {
 
   const isViewer = reviewer?.role === 'VIEWER';
 
+  const { data: proposalList, refetch: refetchList } = useProposals();
   const { data: proposal, refetch: refetchProposal } = useProposal(proposalId);
   const approveMutation = useApproveProposal();
   const rejectMutation = useRejectProposal();
+
+  const handleResetProposal = async () => {
+    try {
+      await approvalService.resetProposal(proposalId);
+      refetchProposal();
+      refetchList();
+      setFeedbackMessage({
+        type: 'success',
+        message: `Proposal ${proposalId} reset to PENDING_REVIEW. You can now execute and test approval or rejection.`,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Reset failed';
+      setFeedbackMessage({
+        type: 'error',
+        message: `Reset failed: ${msg}`,
+      });
+    }
+  };
 
   const proposalStatus = proposal?.status || 'PENDING_REVIEW';
   const trades = proposal?.trades || [];
@@ -176,26 +196,51 @@ export function ApprovalsPage() {
 
       {/* Proposal ID Selector Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <div className="flex items-center gap-2">
-          <FileCheck2 className="w-4 h-4 text-brand-600 dark:text-brand-400" />
-          <label htmlFor="proposal-id-input" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Target Proposal ID:
-          </label>
-          <input
-            id="proposal-id-input"
-            type="text"
-            value={proposalId}
-            onChange={(e) => setProposalId(e.target.value)}
-            placeholder="e.g. RB-2026-000004"
-            className="font-mono text-xs px-2.5 py-1 rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-500 w-56"
-          />
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <FileCheck2 className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+            <label htmlFor="proposal-select" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Select Proposal:
+            </label>
+            <select
+              id="proposal-select"
+              aria-label="Select Target Proposal"
+              value={proposalId}
+              onChange={(e) => setProposalId(e.target.value)}
+              className="font-mono text-xs px-2.5 py-1.5 rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-500 cursor-pointer"
+            >
+              {proposalList && proposalList.length > 0 ? (
+                proposalList.map((p) => (
+                  <option key={p.proposal_id} value={p.proposal_id}>
+                    {p.proposal_id} ({p.portfolio_id}) &mdash; {p.status}
+                  </option>
+                ))
+              ) : (
+                <option value="RB-2026-000002">RB-2026-000002 (PORT-INV-000001-02) &mdash; PENDING_REVIEW</option>
+              )}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <span>or ID:</span>
+            <input
+              id="proposal-id-input"
+              type="text"
+              value={proposalId}
+              onChange={(e) => setProposalId(e.target.value)}
+              placeholder="e.g. RB-2026-000002"
+              className="font-mono text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-500 w-36"
+            />
+          </div>
         </div>
+
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
               refetchProposal();
+              refetchList();
               setFeedbackMessage(null);
             }}
             leftIcon={<RotateCw className="w-3 h-3" />}
@@ -267,7 +312,7 @@ export function ApprovalsPage() {
             </div>
 
             {/* Approval / Rejection Action Buttons */}
-            {proposalStatus === 'PENDING_REVIEW' && (
+            {proposalStatus === 'PENDING_REVIEW' ? (
               <div className="flex items-center gap-2">
                 <Button
                   variant="danger"
@@ -287,6 +332,25 @@ export function ApprovalsPage() {
                 >
                   Approve Proposal
                 </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={proposalStatus === 'APPROVED' ? 'success' : 'danger'}
+                  size="sm"
+                >
+                  {proposalStatus}
+                </Badge>
+                {canApprove && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetProposal}
+                    leftIcon={<RotateCw className="w-3.5 h-3.5" />}
+                  >
+                    Reset to Pending Review
+                  </Button>
+                )}
               </div>
             )}
           </div>

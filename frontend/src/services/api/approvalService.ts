@@ -63,6 +63,17 @@ export const approvalService = {
   },
 
   /**
+   * Reset a proposal to PENDING_REVIEW for evaluation testing.
+   * Calls POST /api/v1/proposals/{proposal_id}/reset
+   */
+  async resetProposal(proposalId: string): Promise<RebalanceProposalResponse> {
+    return apiRequest<RebalanceProposalResponse>({
+      method: 'POST',
+      url: `/api/v1/proposals/${encodeURIComponent(proposalId)}/reset`,
+    });
+  },
+
+  /**
    * Query the chronological audit event trail for a proposal.
    * Calls GET /api/v1/proposals/{proposal_id}/audit
    */

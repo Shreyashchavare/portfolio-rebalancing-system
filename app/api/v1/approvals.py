@@ -72,6 +72,35 @@ def get_proposal(
 
 
 @router.post(
+    "/{proposal_id}/reset",
+    response_model=RebalanceProposalResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Reset proposal to PENDING_REVIEW",
+    description="Resets a proposal's status to PENDING_REVIEW for evaluation and re-testing.",
+)
+def reset_proposal(
+    proposal_id: str,
+    reviewer: ReviewerContext = Depends(get_current_reviewer),
+    db: Session = Depends(get_db),
+) -> RebalanceProposalResponse:
+    """Reset proposal to PENDING_REVIEW."""
+    prop = db.query(RebalanceProposal).filter_by(proposal_id=proposal_id).first()
+    if not prop:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Proposal '{proposal_id}' was not found.",
+        )
+    prop.status = "PENDING_REVIEW"
+    prop.review_decision = "PENDING"
+    prop.reviewed_at = None
+    prop.review_reason = None
+    db.commit()
+    db.refresh(prop)
+    rebalancing_service = RebalancingService(db)
+    return rebalancing_service.get_proposal_by_id(proposal_id)
+
+
+@router.post(
     "/{proposal_id}/approve",
     response_model=ApprovalDecisionResponse,
     status_code=status.HTTP_200_OK,

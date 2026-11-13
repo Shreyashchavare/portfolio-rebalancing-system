@@ -6,7 +6,8 @@ import { Alert } from '@/components/ui/Alert';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { workflowService } from '@/services/api/workflowService';
 import { SEEDED_PORTFOLIO_REFERENCES } from '@/features/portfolios/types/portfolio';
-import { useProposal } from '@/hooks/useApprovals';
+import { useProposal, useApproveProposal } from '@/hooks/useApprovals';
+import { useAuth } from '@/hooks/useAuth';
 import type { WorkflowResponse } from '@/types/orchestration';
 import {
   CheckCircle2,
@@ -75,6 +76,22 @@ export function WorkflowsPage() {
   const isCompleted = effectiveStatus === 'APPROVED' || effectiveStatus === 'COMPLETED';
   const isRejected = effectiveStatus === 'REJECTED';
   const isHalted = effectiveStatus === 'PENDING_HUMAN_REVIEW';
+
+  const { canApprove } = useAuth();
+  const approveMutation = useApproveProposal();
+
+  const handleDirectApprove = async () => {
+    if (!activeProposalId) return;
+    try {
+      await approveMutation.mutateAsync({
+        proposalId: activeProposalId,
+        payload: { notes: 'Approved directly from Workflow Orchestration console.' },
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Approval failed';
+      setActionError(msg);
+    }
+  };
 
   const handleInitiateWorkflow = async () => {
     setIsInitiating(true);
@@ -346,19 +363,32 @@ export function WorkflowsPage() {
 
           {/* Interactive Gating / Completion Bar */}
           {isHalted && activeProposalId && (
-            <div className="mt-4 p-3 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="mt-4 p-3.5 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2 text-amber-950 dark:text-amber-200">
-                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 animate-pulse" />
                 <span>
                   Stage 7 Gating: Fiduciary human signoff required for proposal{' '}
                   <strong className="font-mono">{activeProposalId}</strong>. Institutional policy halts execution until approved.
                 </span>
               </div>
-              <Link to="/approvals">
-                <Button variant="primary" size="sm" rightIcon={<ExternalLink className="w-3.5 h-3.5" />}>
-                  Complete Human Review
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                {canApprove && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleDirectApprove}
+                    isLoading={approveMutation.isPending}
+                    leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                  >
+                    Approve Proposal &amp; Complete Workflow
+                  </Button>
+                )}
+                <Link to="/approvals">
+                  <Button variant="outline" size="sm" rightIcon={<ExternalLink className="w-3.5 h-3.5" />}>
+                    Open Approvals Desk
+                  </Button>
+                </Link>
+              </div>
             </div>
           )}
 
